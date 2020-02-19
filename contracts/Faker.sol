@@ -35,20 +35,57 @@ pragma solidity ^0.5.0;
  *          - Pull payments allowed -- What if user doesn't withdraw? Track state, or do they lose payment?
  *
  * ARCHITECTURE
+ * Roles: Depositor, Winner, Bidders -- defined in contract, e.g. onlyDepositors, onlyWinner, onlyBidders
+
+ *
+     Auction    Vote
+ M    0
+ T    0
+ W              0
+ R              0
+ F              0
+ S              0
+ S              0
+ ------------------------
+ M    1         0
+ T    1         0
+ W              1
+ R              1
+ F              1
+ S              1
+ S              1
+
  */
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+// import Roles.sol
+// import PullPayment.sol
 
 contract Faker {
   using SafeMath for uint256;
 
+  // Variables for managing phases
+  uint256 public deploymentTime; // needed to determine the current period
+  uint256 public periodLength; // default 1 day
+  uint256 public votingPhaseLength; // default 7 periods
+  uint256 public auctionPhaseLength; // default 2 periods
+
+  // Variables for managing deposits
   uint256 public totalDeposited;
   address[] public depositors;
   mapping (address => uint256) public balances;
 
+  // Variables for managing auction winner
   address winningBidder;
 
-  constructor() {
+  constructor(uint256 _periodLength, uint256 _votingPhaseLength, uint256 _auctionPhaseLength) {
+    require(_auctionPeriods <= _votingPeriods, "Faker: Auction period duration must be <= voting period duration");
+
+    deploymentTime = now;
+    votingPhaseLength = _votingPeriods;
+    auctionPhaseLength = _auctionPeriods;
+
+    require(auctionPhaseLength.mul(_periodLength) <= 1 weeks, "Faker: Auction period duration must be less than 1 week");
   }
 
   function submitBid() external {
@@ -74,6 +111,40 @@ contract Faker {
   }
 
   function claimPayout() external {
+  }
+
+
+  // ======================================== Helpers ========================================
+  function getCurrentPeriod() public view returns (uint256) {
+    // If periodLength = 1 day, this returns day number
+    return now.sub(deploymentTime).div(periodLength);
+  }
+
+  function getCurrentVotingPhase() public view returns (bool, uint256) {
+    uint256 _period = getCurrentPeriod()
+
+    // If we are in the first two days after deployment, voting has not yet started
+    if (_period <= auctionPhaseLength) {
+      return (false, 0);
+    }
+
+    // Otherwise, return the current voting phase number
+    uint256 _phase = _period.div(votingPhaseLength);
+    return (true, _phase);
+  }
+
+  function getCurrentAuctionPhase() public view returns (bool, uint256) {
+     // If we are in the first two days after deployment, this is the first auction period
+    (bool _isVotingActive, uint256 _votingPhase) = getCurrentVotingPhase();
+    if (!_isVotingActuve) {
+      return (true, 0);
+    }
+
+    uint256 _period = getCurrentPeriod();
+    // If modulus day, we are in an auction phase
+    // TODO unhardcode the 7 and 8 based on votingPhaseLength, auctionPhaseLength
+    bool _isModulusDay = ( (_period % 7 == 0) || (_period % 8 == 0) );
+    return (_isModulusDay, _vothingPhase + 1);
   }
 
 }

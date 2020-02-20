@@ -38,31 +38,35 @@ pragma solidity ^0.5.0;
  * Roles: Depositor, Winner, Bidders -- defined in contract, e.g. onlyDepositors, onlyWinner, onlyBidders
 
  *
-     Auction    Vote
+     Auction Phase    Vote Phase
  M    0
  T    0
- W              0
- R              0
- F              0
- S              0
- S              0
- ------------------------
- M    1         0
- T    1         0
- W              1
- R              1
- F              1
- S              1
- S              1
+ W                      0
+ R                      0
+ F                      0
+ S                      0
+ S                      0
+ ----------------------------------
+ M    1                 0
+ T    1                 0
+ W                      1
+ R                      1
+ F                      1
+ S                      1
+ S                      1
 
  */
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 // import Roles.sol
 // import PullPayment.sol
 
 contract Faker {
   using SafeMath for uint256;
+
+  // Token contracts
+  IERC20 public mkrContract;
 
   // Variables for managing phases
   uint256 public deploymentTime; // needed to determine the current period
@@ -78,14 +82,16 @@ contract Faker {
   // Variables for managing auction winner
   address winningBidder;
 
-  constructor(uint256 _periodLength, uint256 _votingPhaseLength, uint256 _auctionPhaseLength) {
-    require(_auctionPeriods <= _votingPeriods, "Faker: Auction period duration must be <= voting period duration");
+  constructor(uint256 _periodLength, uint256 _votingPhaseLength, uint256 _auctionPhaseLength) public {
+    require(_auctionPhaseLength <= _votingPhaseLength, "Faker: Auction period duration must be <= voting period duration");
 
     deploymentTime = now;
-    votingPhaseLength = _votingPeriods;
-    auctionPhaseLength = _auctionPeriods;
+    periodLength = _periodLength;
+    votingPhaseLength = _votingPhaseLength;
+    auctionPhaseLength = _auctionPhaseLength;
 
     require(auctionPhaseLength.mul(_periodLength) <= 1 weeks, "Faker: Auction period duration must be less than 1 week");
+
   }
 
   function submitBid() external {
@@ -98,7 +104,8 @@ contract Faker {
     require(_mkrAmount > 0, "Faker: Deposit amount must be greater than zero");
     // User must approve this contract to spend their MKR
     // Transfer MKR from the user to this contract
-    mkrContract.transferFrom(msg.sender, address(this), _mkrAmount);
+    // mkrContract.transferFrom(msg.sender, address(this), _mkrAmount);
+    // MKR address: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2
 
     // Update their MKR balance
     totalDeposited.add(_mkrAmount);
@@ -120,8 +127,8 @@ contract Faker {
     return now.sub(deploymentTime).div(periodLength);
   }
 
-  function getCurrentVotingPhase() public view returns (bool, uint256) {
-    uint256 _period = getCurrentPeriod()
+  function getCurrentVotingPhase() public view returns (bool isActive, uint256 phase) {
+    uint256 _period = getCurrentPeriod();
 
     // If we are in the first two days after deployment, voting has not yet started
     if (_period <= auctionPhaseLength) {
@@ -133,10 +140,10 @@ contract Faker {
     return (true, _phase);
   }
 
-  function getCurrentAuctionPhase() public view returns (bool, uint256) {
+  function getCurrentAuctionPhase() public view returns (bool isActive, uint256 phase) {
      // If we are in the first two days after deployment, this is the first auction period
     (bool _isVotingActive, uint256 _votingPhase) = getCurrentVotingPhase();
-    if (!_isVotingActuve) {
+    if (!_isVotingActive) {
       return (true, 0);
     }
 
@@ -144,7 +151,7 @@ contract Faker {
     // If modulus day, we are in an auction phase
     // TODO unhardcode the 7 and 8 based on votingPhaseLength, auctionPhaseLength
     bool _isModulusDay = ( (_period % 7 == 0) || (_period % 8 == 0) );
-    return (_isModulusDay, _vothingPhase + 1);
+    return (_isModulusDay, _votingPhase + 1);
   }
 
 }

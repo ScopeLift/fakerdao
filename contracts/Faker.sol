@@ -53,6 +53,7 @@ pragma solidity ^0.5.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+
 // import Roles.sol
 // import PullPayment.sol
 
@@ -117,6 +118,17 @@ contract Faker {
     bids[_auctionPhase] = Bid(msg.sender, _bidAmount); // update leading bid for current phase
   }
 
+  function claimRefund() external {
+    // Prevent calling if no refund is available
+    uint256 _refundAmount = refundAmount[msg.sender];
+    require(_refundAmount > 0, "Faker: No refund available for caller");
+
+    // Update state
+    refundAmount[msg.sender] = 0;
+
+    msg.sender.transfer(_refundAmount);
+  }
+
   function submitVote() external {
   }
 
@@ -136,9 +148,6 @@ contract Faker {
     if (balances[msg.sender] == 0) {
       depositors.push(msg.sender);
     }
-  }
-
-  function claimPayout() external {
   }
 
 

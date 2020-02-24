@@ -44,8 +44,15 @@ contract("Faker", accounts => {
         assert(!isVoteActive, "Shows active vote during second period");
     });
 
+    it("should be in a vote phase during the third period", async () => {
+        await time.increase(periodLength);
+        let {isVoteActive, votePhase} = await instance.getCurrentVotingPhase();
+        assert(isVoteActive, "Does not show active vote during third period");
+        assert.equal(votePhase.toString(10), "0", "Incorrect voting phase during first period");
+    });
+
     it("should show period 3 after 2 more period durations", async () => {
-        await time.increase(2*periodLength);
+        await time.increase(periodLength);
         let period = await instance.getCurrentPeriod();
         assert.equal(period, 3, "Invalid period increase");
     });
@@ -57,13 +64,12 @@ contract("Faker", accounts => {
 
     it("should be in auction phase 1 and vote phase 0 after 7 periods", async () => {
         await time.increase(4*periodLength);
-        let period = await instance.getCurrentPeriod();
-        console.log('period: ', period);
-        console.log("auction phase lenght: " + (await instance.auctionPhaseLength()));
+
         // Check vote phase
         let {isVoteActive, votePhase} = await instance.getCurrentVotingPhase();
         assert(isVoteActive,  "Shows active vote during zeroth period");
         assert.equal(votePhase.toString(10), "0", "Incorrect voting phase during first period");
+
         // Check auction phase
         let {isAuctionActive, auctionPhase} = await instance.getCurrentAuctionPhase();
         assert(isAuctionActive,  "Shows active auction during first period");

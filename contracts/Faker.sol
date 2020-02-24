@@ -131,7 +131,7 @@ contract Faker {
     uint256 _period = getCurrentPeriod();
 
     // If we are in the first two days after deployment, voting has not yet started
-    if (_period <= auctionPhaseLength) {
+    if (_period < auctionPhaseLength) {
       return (false, 0);
     }
 
@@ -149,8 +149,9 @@ contract Faker {
 
     uint256 _period = getCurrentPeriod();
     // If modulus day, we are in an auction phase
-    // TODO unhardcode the 7 and 8 based on votingPhaseLength, auctionPhaseLength
-    bool _isModulusDay = ( (_period % 7 == 0) || (_period % 8 == 0) );
+    uint256 _modulusResult = _period % votingPhaseLength;
+    bool _isModulusDay = _modulusResult < auctionPhaseLength;
+
     return (_isModulusDay, _votingPhase + 1);
   }
 

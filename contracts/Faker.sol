@@ -1,12 +1,6 @@
 pragma solidity ^0.5.0;
 
 /**
- * QUESTIONS
- *
- *   1. What does this do exactly?
- *       "Welcome to the governance voting dashboard Before you can get started voting
- *        you will need to set up a voting contract -- Set up now"
- *
  * NOTES
  *
  *   - Chief.hat() contains the address of the current cheif (e.g. the winning contract)
@@ -79,10 +73,19 @@ contract Faker {
   address[] public depositors;
   mapping (address => uint256) public balances;
 
-  // Variables for managing auction winner
-  address winningBidder;
+  // Variables for managing bidders
+  struct Bid {
+    address bidder;
+    uint256 amount;
+  }
+  mapping (uint256 => Bid) public bids; // mapping of phase number to current leading bid
+  mapping (address => uint256) public refundAmount; // mapping of addresses to their available refund
 
   constructor(uint256 _periodLength, uint256 _votingPhaseLength, uint256 _auctionPhaseLength) public {
+    // TODO do the below setup here?
+    // "Welcome to the governance voting dashboard Before you can get started voting
+    // you will need to set up a voting contract -- Set up now"
+
     require(_auctionPhaseLength <= _votingPhaseLength, "Faker: Auction period duration must be <= voting period duration");
 
     deploymentTime = now;
@@ -91,16 +94,34 @@ contract Faker {
     auctionPhaseLength = _auctionPhaseLength;
 
     require(auctionPhaseLength.mul(_periodLength) <= 1 weeks, "Faker: Auction period duration must be less than 1 week");
-
   }
 
-  function submitBid() external {
+  function submitBid(uint256 _useRefundAmount) external payable {
+    // Get phase and current bid info
+    (bool _isAuctionActive, uint256 _auctionPhase) = getCurrentAuctionPhase();
+    require(_isAuctionActive, "Faker: No auction is ongoing");
+    Bid memory _leadingBid = bids[_auctionPhase];
+
+    // Make sure bidder refund inclusion amount is valid
+    require(_useRefundAmount <= refundAmount[msg.sender], "Faker: Refund input too high");
+
+    // Adjust refund available to the losing bidder (they are still leading bidder)
+    refundAmount[_leadingBid.bidder] = refundAmount[_leadingBid.bidder].add(_leadingBid.amount);
+
+    // Adjust refund available to the new winning bidder
+    refundAmount[msg.sender] = refundAmount[msg.sender].sub(_useRefundAmount);
+
+    // Calculate total bid amount of sender and update bid
+    uint256 _bidAmount = msg.value.add(_useRefundAmount);
+    require(_bidAmount > _leadingBid.amount, "Faker: Bid is less than current leader");
+    bids[_auctionPhase] = Bid(msg.sender, _bidAmount); // update leading bid for current phase
   }
 
   function submitVote() external {
   }
 
   function deposit(uint256 _mkrAmount) external {
+    // TODO
     require(_mkrAmount > 0, "Faker: Deposit amount must be greater than zero");
     // User must approve this contract to spend their MKR
     // Transfer MKR from the user to this contract

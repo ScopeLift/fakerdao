@@ -100,10 +100,17 @@ contract Faker {
     // Always require user to withdraw all Maker
     uint256 _balance = makerDeposits[msg.sender];
     require(_balance > 0, "Faker: Caller has no deposited Maker");
+
     // Update state
     makerDeposits[msg.sender] = 0;
 
     // TODO move Maker off the current slate
+
+    // Transfer MKR from the contract to the user
+    require(
+      mkrContract.transfer(msg.sender, _balance),
+      "Faker: Transfer Failed During Withdraw"
+    );
   }
 
   // ======================================== Helpers ========================================

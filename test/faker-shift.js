@@ -56,19 +56,53 @@ contract("Faker", accounts => {
   // Test deposit in next shift
   // Test withdraw in next shift
 
+  // PERIOD 0
+
   it('should let users deposit', async () => {
     await instance.deposit(toWei("100", "ether"), {from: depositor1});
     const depositor1Balance = await makerInstance.balanceOf(depositor1);
-    assert(depositor1Balance, toWei("900", "ether"), "Unexpected Balance");
+    assert.equal(depositor1Balance, toWei("900", "ether"), "Unexpected Balance");
 
     await instance.deposit(toWei("100", "ether"), {from: depositor2});
     const depositor2Balance = await makerInstance.balanceOf(depositor2);
-    assert(depositor2Balance, toWei("900", "ether"), "Unexpected Balance");
+    assert.equal(depositor2Balance, toWei("900", "ether"), "Unexpected Balance");
   });
 
   it('should let users withdraw', async () => {
     await instance.withdrawMaker({from: depositor1});
     const depositor1Balance = await makerInstance.balanceOf(depositor1)
-    assert(depositor1Balance, toWei("1000", "ether"), "Unexpected Balance")
+    assert.equal(depositor1Balance, toWei("1000", "ether"), "Unexpected Balance")
+  });
+
+  // PERIOD 1
+
+  it("should advance time", async () => {
+    await time.increase(periodLength);
+  });
+
+  it("should not let users deposit during period 1", async () => {
+    await expectRevert(
+      instance.deposit(toWei("100", "ether"), {from: depositor1}),
+      "Faker: Not Shift Period"
+    );
+  });
+
+  it("should not lets users withdraw during period 1", async () => {
+    await expectRevert(
+      instance.withdrawMaker({from: depositor2}),
+      "Faker: Not Shift Period"
+    );
+  });
+
+  // PERIOD 7
+
+  it("should advance time", async () => {
+    await time.increase(6*periodLength);
+  });
+
+  it("should let a despositor withdraw", async () => {
+    await instance.withdrawMaker({from: depositor2});
+    const depositor2Balance = await makerInstance.balanceOf(depositor2);
+    assert.equal(depositor2Balance, toWei("1000", "ether"), "Unexpected Balance");
   });
 });

@@ -17,39 +17,33 @@ pragma solidity ^0.5.0;
  * Stakeholder = Users who deposit MKR
  *
  *  - Phases
- *      - Auction: 2 days
- *          - MKR floor is locked (i.e. no withdraws)
- *          - Deposits are allowed
- *          - Bids are accepted in Ether
- *              - If Ether, refunds as pull payment. If ERC20/ETH, just transfer token
- *      - Voting: Rolling 1 week period
- *          - Winning bidder can do whatever they want with MKR or MKR is committed to pre-determined slate
- *          - No MKR withdrawals allowed
- *          - MKR deposits are held until next auction
- *          - Pull payments allowed -- What if user doesn't withdraw? Track state, or do they lose payment?
+ *      - Shift: This is the only time MKR can be deposited or withdrawn
+ *      - Auction: All bidding happens here, MKR is locked, no deposits/withdraws
+ *      - Voting: Remaining 5 days, MKR is locked, no deposits/withdraws, earnings withdrawn here
  *
  * ARCHITECTURE
  * Roles: Depositor, Winner, Bidders -- defined in contract, e.g. onlyDepositors, onlyWinner, onlyBidders
 
  *
-     Auction Phase    Vote Phase
- M    0
- T    0
- W                      0
- R                      0
- F                      0
- S                      0
- S                      0
- ----------------------------------
- M    1                 0
- T    1                 0
- W                      1
- R                      1
- F                      1
- S                      1
- S                      1
 
- */
+     Phase    isShift    isAuction
+ M    0         Y
+ T    0                     Y
+ W    0
+ R    0
+ F    0
+ S    0
+ S    0
+ ----------------------------------
+ M    1         Y
+ T    1                     Y
+ W    1
+ R    1
+ F    1
+ S    1
+ S    1
+*/
+
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
@@ -66,8 +60,10 @@ contract Faker {
   // Variables for managing phases
   uint256 public deploymentTime; // needed to determine the current period
   uint256 public periodLength; // default 1 day
-  uint256 public votingPhaseLength; // default 7 periods
-  uint256 public auctionPhaseLength; // default 2 periods
+  uint256 constant shiftPhaseLength = 1;    // default 1 periods
+  uint256 constant auctionPhaseLength = 1;  // default 1 periods
+  uint256 constant phaseLength = 7;   // default 7 periods
+  uint256 public votingPhaseLength; // TODO delete this
 
   // Variables for managing deposits
   uint256 public totalDeposited;
@@ -82,19 +78,13 @@ contract Faker {
   mapping (uint256 => Bid) public bids; // mapping of phase number to current leading bid
   mapping (address => uint256) public refundAmount; // mapping of addresses to their available refund
 
-  constructor(uint256 _periodLength, uint256 _votingPhaseLength, uint256 _auctionPhaseLength) public {
+  constructor(uint256 _periodLength) public {
     // TODO do the below setup here?
     // "Welcome to the governance voting dashboard Before you can get started voting
     // you will need to set up a voting contract -- Set up now"
 
-    require(_auctionPhaseLength <= _votingPhaseLength, "Faker: Auction period duration must be <= voting period duration");
-
     deploymentTime = now;
     periodLength = _periodLength;
-    votingPhaseLength = _votingPhaseLength;
-    auctionPhaseLength = _auctionPhaseLength;
-
-    require(auctionPhaseLength.mul(_periodLength) <= 1 weeks, "Faker: Auction period duration must be less than 1 week");
   }
 
   function submitBid(uint256 _useRefundAmount) external payable {
@@ -157,6 +147,19 @@ contract Faker {
     return now.sub(deploymentTime).div(periodLength);
   }
 
+  function getCurrentPhase() public view returns (uint256) {
+    return getCurrentPeriod().div(phaseLength);
+  }
+
+  function isShift() public view returns (bool) {
+    return (getCurrentPeriod() % phaseLength == 0);
+  }
+
+  function isAuction() public view returns (bool) {
+    return (getCurrentPeriod() % phaseLength == 1);
+  }
+
+  // BELOW THIS IS OUTDATED!
   function getCurrentVotingPhase() public view returns (bool isVoteActive, uint256 votePhase) {
     uint256 _period = getCurrentPeriod();
 

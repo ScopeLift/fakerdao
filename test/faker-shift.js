@@ -49,13 +49,6 @@ contract("Faker", accounts => {
     assert.equal(depositor2Balance, toWei("1000", "ether"), "Invalid depositor balance");
   });
 
-  // Test deposit during first shift
-  // Test withdraw during first shift
-  // Test no deposit after shift
-  // test no withdraw after shift
-  // Test deposit in next shift
-  // Test withdraw in next shift
-
   // PERIOD 0
 
   it('should let users deposit', async () => {
@@ -100,9 +93,26 @@ contract("Faker", accounts => {
     await time.increase(6*periodLength);
   });
 
-  it("should let a despositor withdraw", async () => {
+  it("should let a despositor withdraw in period 7", async () => {
     await instance.withdrawMaker({from: depositor2});
     const depositor2Balance = await makerInstance.balanceOf(depositor2);
     assert.equal(depositor2Balance, toWei("1000", "ether"), "Unexpected Balance");
+  });
+
+  it("should not let a user with no deposits withdraw", async () => {
+    await expectRevert(
+      instance.withdrawMaker({from: depositor1}),
+      "Faker: Caller has no deposited Maker"
+    );
+  });
+
+  it("should let a user desposit and withdraw in period 7", async () => {
+    await instance.deposit(toWei("100", "ether"), {from: depositor1});
+    let depositor1Balance = await makerInstance.balanceOf(depositor1);
+    assert.equal(depositor1Balance, toWei("900", "ether"), "Unexpected Balance");
+
+    await instance.withdrawMaker({from: depositor1});
+    depositor1Balance = await makerInstance.balanceOf(depositor1);
+    assert.equal(depositor1Balance, toWei("1000", "ether"), "Unexpected Balance");
   });
 });

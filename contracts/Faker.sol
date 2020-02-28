@@ -64,13 +64,46 @@ contract Faker {
   uint256 constant shiftPhaseLength = 1;    // 1 periods
   uint256 constant auctionPhaseLength = 1;  // 1 periods
 
-  constructor(uint256 _periodLength) public {
+  // Variables for managing deposits
+  mapping (address => uint256) public makerDeposits;
+
+  constructor(uint256 _periodLength, address _mkrAddress) public {
     // TODO do the below setup here?
     // "Welcome to the governance voting dashboard Before you can get started voting
     // you will need to set up a voting contract -- Set up now"
 
     deploymentTime = now;
     periodLength = _periodLength;
+    mkrContract = IERC20(_mkrAddress);
+  }
+
+  // ======================================== Shift Phase ========================================
+
+  function deposit(uint256 _mkrAmount) external onlyShift() {
+    // User must approve this contract to spend their MKR
+    // MKR address: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2
+    require(_mkrAmount > 0, "Faker: Deposit amount must be greater than zero");
+
+    // Update state
+    makerDeposits[msg.sender] = makerDeposits[msg.sender].add(_mkrAmount);
+
+    // TODO move Maker to the current slate
+
+    // Transfer MKR from the user to this contract
+    require(
+      mkrContract.transferFrom(msg.sender, address(this), _mkrAmount),
+      "Faker: Transfer Failed During Deposit"
+    );
+  }
+
+  function withdrawMaker() external onlyShift() {
+    // Always require user to withdraw all Maker
+    uint256 _balance = makerDeposits[msg.sender];
+    require(_balance > 0, "Faker: Caller has no deposited Maker");
+    // Update state
+    makerDeposits[msg.sender] = 0;
+
+    // TODO move Maker off the current slate
   }
 
   // ======================================== Helpers ========================================
@@ -89,5 +122,15 @@ contract Faker {
 
   function isAuction() public view returns (bool) {
     return (getCurrentPeriod() % phaseLength == 1);
+  }
+
+  modifier onlyShift() {
+    require(isShift(), "Faker: Not Shift Period");
+    _;
+  }
+
+  modifier onlyAuction() {
+    require(isAuction(), "Faker: Not Auction Period");
+    _;
   }
 }

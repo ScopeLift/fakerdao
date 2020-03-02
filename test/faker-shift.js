@@ -28,7 +28,8 @@ contract("Faker", accounts => {
     periodLength = await instance.periodLength();
 
     // Deploy mock Maker token and send tokens to the bidders
-    makerInstance = await TestToken.deployed();
+    let makerAddr = await instance.mkrContract();
+    makerInstance = await TestToken.at(makerAddr);
     await makerInstance.mint(depositor1, toWei("1000", "ether"));
     await makerInstance.mint(depositor2, toWei("1000", "ether"));
 
@@ -93,7 +94,7 @@ contract("Faker", accounts => {
     await time.increase(6*periodLength);
   });
 
-  it("should let a despositor withdraw in period 7", async () => {
+  it("should let a depositor withdraw in period 7", async () => {
     await instance.withdrawMaker({from: depositor2});
     const depositor2Balance = await makerInstance.balanceOf(depositor2);
     assert.equal(depositor2Balance, toWei("1000", "ether"), "Unexpected Balance");
@@ -106,7 +107,7 @@ contract("Faker", accounts => {
     );
   });
 
-  it("should let a user desposit and withdraw in period 7", async () => {
+  it("should let a user deposit and withdraw in period 7", async () => {
     await instance.deposit(toWei("100", "ether"), {from: depositor1});
     let depositor1Balance = await makerInstance.balanceOf(depositor1);
     assert.equal(depositor1Balance, toWei("900", "ether"), "Unexpected Balance");

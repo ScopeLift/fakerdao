@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 /**
  * NOTES
  *
- *   - Chief.hat() contains the address of the current cheif (e.g. the winning contract)
+ *   - Chief.hat() contains the address of the current chief (e.g. the winning contract)
  *   - Chief.slates() contains sets of candidates
  *   - When you lock GOV tokens for voting, you receive IOU tokens in return
  *   - To vote:
@@ -56,6 +56,7 @@ contract Faker {
 
   // Token contracts
   IERC20 public mkrContract;
+  IERC20 public bidToken;
 
   // Variables for managing phases
   uint256 public deploymentTime; // needed to determine the current period
@@ -67,7 +68,15 @@ contract Faker {
   // Variables for managing deposits
   mapping (address => uint256) public makerDeposits;
 
-  constructor(uint256 _periodLength, address _mkrAddress) public {
+  // Variables for managing bids
+  struct Bid {
+    address Bidder;
+    uint256 amount;
+  }
+  mapping (uint256 => Bid) public bids;
+
+
+  constructor(uint256 _periodLength, address _mkrAddress, address _bidTokenAddress) public {
     // TODO do the below setup here?
     // "Welcome to the governance voting dashboard Before you can get started voting
     // you will need to set up a voting contract -- Set up now"
@@ -75,12 +84,13 @@ contract Faker {
     deploymentTime = now;
     periodLength = _periodLength;
     mkrContract = IERC20(_mkrAddress);
+    bidToken = IERC20(_bidTokenAddress);
   }
 
-  // ======================================== Shift Phase ========================================
+  // ========================================= Shift Phase =========================================
 
   function deposit(uint256 _mkrAmount) external onlyShift() {
-    // User must approve this contract to spend their MKR
+    // Depositor must approve this contract to spend their MKR
     // MKR address: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2
     require(_mkrAmount > 0, "Faker: Deposit amount must be greater than zero");
 
@@ -113,7 +123,29 @@ contract Faker {
     );
   }
 
-  // ======================================== Helpers ========================================
+  // ======================================== Auction Phase ========================================
+
+  function submitBid(uint256 _bidAmount) external onlyAuction() {
+    // Bidder must approve this contract to spend their token
+    require(_bidAmount > 0, "Faker: Bid amount must be greater than zero");
+
+    // require (_bidAmount > current bid amount)
+
+    // Transfer token from the user to this contract
+    // require(
+    //   bidToken.transferFrom(msg.sender, address(this), uint256 _bidAmount),
+    //   "Faker: Bid transfer could not be completed"
+    // );
+
+    // refund old bidder
+
+    // set new leading bidder
+  }
+
+
+
+  // =========================================== Helpers ===========================================
+
   function getCurrentPeriod() public view returns (uint256) {
     // If periodLength = 1 day, this returns day number
     return now.sub(deploymentTime).div(periodLength);

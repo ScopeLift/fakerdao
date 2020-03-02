@@ -70,10 +70,10 @@ contract Faker {
 
   // Variables for managing bids
   struct Bid {
-    address Bidder;
+    address bidder;
     uint256 amount;
   }
-  mapping (uint256 => Bid) public bids;
+  mapping (uint256 => Bid) public bids; // period number => Bid
 
 
   constructor(uint256 _periodLength, address _mkrAddress, address _bidTokenAddress) public {
@@ -129,19 +129,29 @@ contract Faker {
     // Bidder must approve this contract to spend their token
     require(_bidAmount > 0, "Faker: Bid amount must be greater than zero");
 
-    // require (_bidAmount > current bid amount)
+    uint256 _phase = getCurrentPhase();
+    require(_bidAmount > bids[_phase].amount, "Faker: Bid is not above leading bid");
 
-    // Transfer token from the user to this contract
-    // require(
-    //   bidToken.transferFrom(msg.sender, address(this), uint256 _bidAmount),
-    //   "Faker: Bid transfer could not be completed"
-    // );
+    // Update state
+    Bid memory _previousBid = bids[_phase];
 
-    // refund old bidder
+    bids[_phase].bidder = msg.sender;
+    bids[_phase].amount = _bidAmount;
 
-    // set new leading bidder
+    // Refund old bidder
+    if (_previousBid.bidder != address(0) ) {
+      require(
+        bidToken.transfer(_previousBid.bidder, _previousBid.amount),
+        "Faker: Bid transfer could not be completed"
+      );
+    }
+
+    // Transfer tokens from the user to this contract
+    require(
+      bidToken.transferFrom(msg.sender, address(this), _bidAmount),
+      "Faker: Bid transfer could not be completed"
+    );
   }
-
 
 
   // =========================================== Helpers ===========================================

@@ -77,6 +77,55 @@ contract("Faker", accounts => {
     await time.increase(periodLength);
   });
 
+  it("should not allow a zero amount bid", async () => {
+    await expectRevert(
+      instance.submitBid(toWei("0", "ether"), {from: bidder1}),
+      "Faker: Bid amount must be greater than zero"
+    );
+  });
+
+  it("should allow a user to submit a bid in period 1", async () => {
+    await instance.submitBid(toWei("10", "ether"), {from: bidder1});
+
+    let leadingBid = await instance.bids("0");
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+
+    assert.equal(toWei("10", "ether"), contractBalance, "Unexpected Balance");
+    assert.equal(leadingBid.bidder, bidder1, "Unexpected bidder");
+    assert.equal(leadingBid.amount, toWei("10", "ether"), "Unexpected amount");
+  });
+
+  it("should not allow a bid for less than the previous bid", async () => {
+    await expectRevert(
+      instance.submitBid(toWei("9", "ether"), {from: bidder2}),
+      "Faker: Bid is not above leading bid"
+    );
+  });
+
+  it("should allow the current leader to increase their bid", async () => {
+    await instance.submitBid(toWei("11", "ether"), {from: bidder1});
+
+    let leadingBid = await instance.bids("0");
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+
+    assert.equal(toWei("11", "ether"), contractBalance, "Unexpected Balance");
+    assert.equal(leadingBid.bidder, bidder1, "Unexpected bidder");
+    assert.equal(leadingBid.amount, toWei("11", "ether"), "Unexpected amount");
+  });
+
+  it("should allow a new user to outbid the previous", async () => {
+    await instance.submitBid(toWei("12", "ether"), {from: bidder2});
+
+    let leadingBid = await instance.bids("0");
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+    let oldBidderBalance = await bidTokenInstance.balanceOf(bidder1);
+
+    assert.equal(toWei("12", "ether"), contractBalance, "Unexpected Balance");
+    assert.equal(toWei("100", "ether"), oldBidderBalance, "Unexpected Balance");
+    assert.equal(leadingBid.bidder, bidder2, "Unexpected bidder");
+    assert.equal(leadingBid.amount, toWei("12", "ether"), "Unexpected amount");
+  });
+
   // PERIOD 2
 
   it("should increase time to period 2", async () => {

@@ -8,13 +8,14 @@
   "author": "mds <17163988+mds1@users.noreply.github.com>",
   "private": true,
   "scripts": {
-    "dev": "quasar dev",
-    "lint": "eslint --ext .js,.vue src",
+    "dev": "npx quasar dev",
+    "lint": "eslint --ext .js,.vue src --fix",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
+    "ethers": "^4.0.45",
     "quasar": "^1.0.0"
   },
   "devDependencies": {

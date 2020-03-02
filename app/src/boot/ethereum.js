@@ -5,6 +5,7 @@ const addresses = require('../../../abi/addresses.json');
 
 const provider = ethers.getDefaultProvider('homestead');
 
+
 /**
  * @notice Create ethers contract instance
  * @param {String} name contract name

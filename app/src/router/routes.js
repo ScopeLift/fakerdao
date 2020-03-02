@@ -1,10 +1,19 @@
-
 const routes = [
   {
     path: '/',
     component: () => import('layouts/BaseLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/Home.vue') },
+      { name: 'home', path: '', component: () => import('pages/Home.vue') },
+      {
+        name: 'deposit',
+        path: '/deposit',
+        component: () => import('pages/Deposit.vue'),
+      },
+      {
+        name: 'bid',
+        path: '/bid',
+        component: () => import('pages/Bid.vue'),
+      },
     ],
   },
 ];

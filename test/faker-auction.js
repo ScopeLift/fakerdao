@@ -138,4 +138,35 @@ contract("Faker", accounts => {
       "Faker: Not Auction Period"
     );
   });
+
+  // PERIOD 8
+
+  it("should increase time to period 8", async () => {
+    await time.increase(6*periodLength);
+  });
+
+  it("should start with no leading bidder", async () => {
+    let leadingBid = await instance.bids('1');
+    assert.equal(leadingBid.amount, '0', 'Unexpected amount');
+    assert.equal(leadingBid.bidder, constants.ZERO_ADDRESS, 'Unexpected bidder');
+  });
+
+  it("should allow a new bid for this phase", async () => {
+    await instance.submitBid(toWei("10", "ether"), {from: bidder1});
+
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+    let bidderBalance = await bidTokenInstance.balanceOf(bidder1);
+    let leadingBid = await instance.bids('1');
+
+    assert.equal(toWei("22", "ether"), contractBalance, "Unexpected Balance");
+    assert.equal(toWei("90", "ether"), bidderBalance, "Unexpected Balance");
+    assert.equal(leadingBid.bidder, bidder1, "Unexpected bidder");
+    assert.equal(leadingBid.amount, toWei("10", "ether"), "Unexpected amount");
+  });
+
+  it('should not overwrite previous bids', async() => {
+    let oldBid = await instance.bids('0');
+    assert.equal(oldBid.bidder, bidder2, "Unexpected bidder");
+    assert.equal(oldBid.amount, toWei("12", "ether"), "Unexpected amount");
+  });
 });

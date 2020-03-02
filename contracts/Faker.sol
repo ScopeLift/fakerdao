@@ -72,6 +72,7 @@ contract Faker {
   struct Bid {
     address bidder;
     uint256 amount;
+    uint256 mkrAmount; // amount of maker being bid on
   }
   mapping (uint256 => Bid) public bids; // period number => Bid
 
@@ -151,6 +152,13 @@ contract Faker {
       bidToken.transferFrom(msg.sender, address(this), _bidAmount),
       "Faker: Bid transfer could not be completed"
     );
+  }
+
+  // ======================================== Voting Phase ========================================
+
+  function withdrawEarnings(uint256[] _phases) external {
+    // Whenever you add or withdraw maker, you withdraw earnings
+
   }
 
 

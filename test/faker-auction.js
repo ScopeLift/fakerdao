@@ -4,7 +4,7 @@ const { time, expectRevert, constants } = require("@openzeppelin/test-helpers");
 const Faker = artifacts.require("Faker");
 const TestToken = artifacts.require("TestToken");
 
-contract("Faker", accounts => {
+contract("Faker Auctions", accounts => {
   let instance = null;
   let makerInstance = null;
   let bidTokenInstance = null;

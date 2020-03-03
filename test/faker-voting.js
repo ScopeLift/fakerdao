@@ -15,6 +15,7 @@ contract("Faker Voting", accounts => {
 
   const depositor1 = accounts[1];
   const depositor2 = accounts[2];
+  const depositor3 = accounts[5];
   const bidder1 = accounts[3];
   const bidder2 = accounts[4];
 
@@ -28,6 +29,7 @@ contract("Faker Voting", accounts => {
     makerInstance = await TestToken.at(makerAddr);
     await makerInstance.mint(depositor1, toWei("1000", "ether"));
     await makerInstance.mint(depositor2, toWei("1000", "ether"));
+    await makerInstance.mint(depositor3, toWei("1000", "ether"));
 
     // Get mock bid token instance
     let bidTokenAddr = await instance.bidToken();
@@ -38,6 +40,7 @@ contract("Faker Voting", accounts => {
     // Approve Faker instance to spend Maker
     await makerInstance.approve(instance.address, constants.MAX_UINT256, {from: depositor1});
     await makerInstance.approve(instance.address, constants.MAX_UINT256, {from: depositor2});
+    await makerInstance.approve(instance.address, constants.MAX_UINT256, {from: depositor3});
     await bidTokenInstance.approve(instance.address, constants.MAX_UINT256, {from: bidder1});
     await bidTokenInstance.approve(instance.address, constants.MAX_UINT256, {from: bidder2});
   });
@@ -118,6 +121,48 @@ contract("Faker Voting", accounts => {
     await expectRevert(
       instance.withdrawEarnings(["0"], {from: depositor1}),
       "Faker: Earnings For Phase Already Withdrawn"
+    );
+  });
+
+  // PERIOD 7
+
+  it("should increase time to period 7", async () => {
+    await time.increase(5*periodLength);
+  });
+
+  it('should let another user deposit', async () => {
+    await instance.deposit(toWei("50", "ether"), {from: depositor3});
+    const depositor2Balance = await makerInstance.balanceOf(depositor3);
+    assert.equal(depositor2Balance, toWei("950", "ether"), "Unexpected Balance");
+  });
+
+  // PERIOD 8
+
+  it("should increase time to period 9", async () => {
+    await time.increase(periodLength);
+  });
+
+  it("should allow a user to submit a bid in period 8", async () => {
+    await instance.submitBid(toWei("10", "ether"), {from: bidder2});
+
+    let leadingBid = await instance.bids("1");
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+
+    assert.equal(toWei("15", "ether"), contractBalance, "Unexpected Balance");
+    assert.equal(leadingBid.bidder, bidder2, "Unexpected bidder");
+    assert.equal(leadingBid.amount, toWei("10", "ether"), "Unexpected amount");
+  });
+
+  // PERIOD 10
+
+  it("should increase time to period 9", async () => {
+    await time.increase(periodLength);
+  });
+
+  it("should not allow a depositor to withdraw from a phase the didn't contribute to", async () => {
+    await expectRevert(
+      instance.withdrawEarnings(["0"], {from: depositor3}),
+      "Faker: Not Eligible For Earnings In This Phase"
     );
   });
 });

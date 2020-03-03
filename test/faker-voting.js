@@ -98,4 +98,19 @@ contract("Faker Voting", accounts => {
     );
   });
 
+  // PERIOD 2
+
+  it("should increase time to period 2", async () => {
+    await time.increase(periodLength);
+  });
+
+  it("should allow a user to withdraw their earnings from the now-complete auction", async () => {
+    await instance.withdrawEarnings(["0"], {from: depositor1});
+
+    let depositor1Balance = await bidTokenInstance.balanceOf(depositor1);
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+
+    assert.equal(depositor1Balance, toWei("5", "ether"), "Unexpected Balance");
+    assert.equal(contractBalance, toWei("5", "ether"), "Unexpected Balance");
+  });
 });

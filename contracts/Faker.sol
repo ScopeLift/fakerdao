@@ -67,12 +67,13 @@ contract Faker {
 
   // Variables for managing deposits
   mapping (address => uint256) public makerDeposits;
+  uint256 public totalMaker;
 
   // Variables for managing bids
   struct Bid {
     address bidder;
     uint256 amount;
-    uint256 mkrAmount; // amount of maker being bid on
+    uint256 makerAmount; // amount of maker being bid on
   }
   mapping (uint256 => Bid) public bids; // period number => Bid
 
@@ -97,6 +98,7 @@ contract Faker {
 
     // Update state
     makerDeposits[msg.sender] = makerDeposits[msg.sender].add(_mkrAmount);
+    totalMaker += _mkrAmount;
 
     // TODO move Maker to the current slate
 
@@ -114,6 +116,7 @@ contract Faker {
 
     // Update state
     makerDeposits[msg.sender] = 0;
+    totalMaker -= _balance;
 
     // TODO move Maker off the current slate
 
@@ -138,6 +141,7 @@ contract Faker {
 
     bids[_phase].bidder = msg.sender;
     bids[_phase].amount = _bidAmount;
+    bids[_phase].makerAmount = totalMaker;
 
     // Refund old bidder
     if (_previousBid.bidder != address(0) ) {
@@ -170,6 +174,13 @@ contract Faker {
     bool isCurrentPhase = _phase == _currentPhase;
     bool isAfterAuction = ((!isShift()) && (!isAuction()));
     require((!isCurrentPhase) || isAfterAuction, "Faker: Earnings For Phase Not Yet Withdrawable");
+
+    uint256 _earnings = makerDeposits[msg.sender].mul(bids[_phase].amount).div(bids[_phase].makerAmount);
+
+    require(
+      bidToken.transfer(msg.sender, _earnings),
+      "Faker: Earnings Transfer Failed"
+    );
   }
 
   // =========================================== Helpers ===========================================

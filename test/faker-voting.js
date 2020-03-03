@@ -113,4 +113,11 @@ contract("Faker Voting", accounts => {
     assert.equal(depositor1Balance, toWei("5", "ether"), "Unexpected Balance");
     assert.equal(contractBalance, toWei("5", "ether"), "Unexpected Balance");
   });
+
+  it("should not allow the same user to withdraw their earnings from the same phase twice", async () => {
+    await expectRevert(
+      instance.withdrawEarnings(["0"], {from: depositor1}),
+      "Faker: Earnings For Phase Already Withdrawn"
+    );
+  });
 });

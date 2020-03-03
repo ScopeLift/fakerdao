@@ -165,4 +165,34 @@ contract("Faker Voting", accounts => {
       "Faker: Not Eligible For Earnings In This Phase"
     );
   });
+
+  it("should allow a user to withdraw earnings for two phases", async () => {
+    await instance.withdrawEarnings(["0", "1"], {from: depositor2});
+
+    let depositor2Balance = await bidTokenInstance.balanceOf(depositor2);
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+
+    assert.equal(depositor2Balance, toWei("9", "ether"), "Unexpected Balance");
+    assert.equal(contractBalance, toWei("6", "ether"), "Unexpected Balance");
+  });
+
+  it("should allow a user to withdraw latest earnings", async () => {
+    await instance.withdrawEarnings(["1"], {from: depositor1});
+
+    let depositor1Balance = await bidTokenInstance.balanceOf(depositor1);
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+
+    assert.equal(depositor1Balance, toWei("9", "ether"), "Unexpected Balance");
+    assert.equal(contractBalance, toWei("2", "ether"), "Unexpected Balance");
+  });
+
+  it("should allow latest user to withdraw earnings", async () => {
+    await instance.withdrawEarnings(["1"], {from: depositor3});
+
+    let depositor3Balance = await bidTokenInstance.balanceOf(depositor3);
+    let contractBalance = await bidTokenInstance.balanceOf(instance.address);
+
+    assert.equal(depositor3Balance, toWei("2", "ether"), "Unexpected Balance");
+    assert.equal(contractBalance, toWei("0", "ether"), "Unexpected Balance");
+  });
 });

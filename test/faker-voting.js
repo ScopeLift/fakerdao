@@ -75,7 +75,6 @@ contract("Faker Voting", accounts => {
     await time.increase(periodLength);
   });
 
-
   it("should allow a user to submit a bid in period 1", async () => {
     await instance.submitBid(toWei("10", "ether"), {from: bidder1});
 

@@ -74,7 +74,7 @@ contract Faker {
   uint256 public totalMaker;
 
   // Variables for managing earnings
-  mapping (address => mapping (uint256 => bool)) phaseEarningWithdrawls;
+  mapping (address => mapping (uint256 => bool)) phaseEarningWithdrawals;
 
   // Variables for managing bids
   struct Bid {
@@ -187,7 +187,7 @@ contract Faker {
     bool isAfterAuction = ((!isShift()) && (!isAuction()));
     require((!isCurrentPhase) || isAfterAuction, "Faker: Earnings For Phase Not Yet Withdrawable");
 
-    recordEarningsWithdrawl(msg.sender, _phase);
+    recordEarningsWithdrawal(msg.sender, _phase);
     uint256 _earnings = makerDeposits[msg.sender].amount.mul(bids[_phase].amount).div(bids[_phase].makerAmount);
 
     require(
@@ -215,12 +215,12 @@ contract Faker {
     return (getCurrentPeriod() % phaseLength == 1);
   }
 
-  function recordEarningsWithdrawl(address _depositor, uint256 _phase) internal {
-    phaseEarningWithdrawls[_depositor][_phase] = true;
+  function recordEarningsWithdrawal(address _depositor, uint256 _phase) internal {
+    phaseEarningWithdrawals[_depositor][_phase] = true;
   }
 
   function hasWithdrawnEarnings(address _depositor, uint256 _phase) public view returns (bool) {
-    return phaseEarningWithdrawls[_depositor][_phase];
+    return phaseEarningWithdrawals[_depositor][_phase];
   }
 
   modifier onlyShift() {

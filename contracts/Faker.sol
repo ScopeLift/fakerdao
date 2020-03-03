@@ -66,7 +66,11 @@ contract Faker {
   uint256 constant auctionPhaseLength = 1;  // 1 periods
 
   // Variables for managing deposits
-  mapping (address => uint256) public makerDeposits;
+  struct Deposit {
+    uint256 amount; // amount of maker user contributes
+    uint256 phase;  // phase when contribution added
+  }
+  mapping (address => Deposit) public makerDeposits;
   uint256 public totalMaker;
 
   // Variables for managing earnings
@@ -100,7 +104,8 @@ contract Faker {
     require(_mkrAmount > 0, "Faker: Deposit amount must be greater than zero");
 
     // Update state
-    makerDeposits[msg.sender] = makerDeposits[msg.sender].add(_mkrAmount);
+    uint256 _newDeposit = makerDeposits[msg.sender].amount.add(_mkrAmount);
+    makerDeposits[msg.sender] = Deposit(_newDeposit, getCurrentPhase());
     totalMaker += _mkrAmount;
 
     // TODO move Maker to the current slate
@@ -114,11 +119,11 @@ contract Faker {
 
   function withdrawMaker() external onlyShift() {
     // Always require user to withdraw all Maker
-    uint256 _balance = makerDeposits[msg.sender];
+    uint256 _balance = makerDeposits[msg.sender].amount;
     require(_balance > 0, "Faker: Caller has no deposited Maker");
 
     // Update state
-    makerDeposits[msg.sender] = 0;
+    delete makerDeposits[msg.sender];
     totalMaker -= _balance;
 
     // TODO move Maker off the current slate
@@ -171,6 +176,9 @@ contract Faker {
   }
 
   function withdrawPhaseEarnings(uint256 _phase) internal {
+    uint256 _depositPhase = makerDeposits[msg.sender].phase;
+    require(_phase >= _depositPhase, "Faker: Not Eligible For Earnings In This Phase");
+
     uint256 _currentPhase = getCurrentPhase();
     require(_phase <= _currentPhase, "Faker: Phase Is In Future");
     require(!hasWithdrawnEarnings(msg.sender, _phase), "Faker: Earnings For Phase Already Withdrawn");
@@ -180,7 +188,7 @@ contract Faker {
     require((!isCurrentPhase) || isAfterAuction, "Faker: Earnings For Phase Not Yet Withdrawable");
 
     recordEarningsWithdrawl(msg.sender, _phase);
-    uint256 _earnings = makerDeposits[msg.sender].mul(bids[_phase].amount).div(bids[_phase].makerAmount);
+    uint256 _earnings = makerDeposits[msg.sender].amount.mul(bids[_phase].amount).div(bids[_phase].makerAmount);
 
     require(
       bidToken.transfer(msg.sender, _earnings),

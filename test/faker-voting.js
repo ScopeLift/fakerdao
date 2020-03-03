@@ -4,7 +4,7 @@ const { time, expectRevert, constants } = require("@openzeppelin/test-helpers");
 const Faker = artifacts.require("Faker");
 const TestToken = artifacts.require("TestToken");
 
-contract("Faker", accounts => {
+contract("Faker Voting", accounts => {
   let instance = null;
   let makerInstance = null;
   let bidTokenInstance = null;
@@ -15,16 +15,8 @@ contract("Faker", accounts => {
 
   const depositor1 = accounts[1];
   const depositor2 = accounts[2];
-
   const bidder1 = accounts[3];
-  const firstBidAmount = toWei("1", "ether");
-  const invalidRefundUseAmount = toWei("1.1", "ether");
-  const bidAdditionAmount = toWei("0.51", "ether");
-  const winningBidAmount = toWei("1.51", "ether");
-
   const bidder2 = accounts[4];
-  const secondBidAmount = toWei("0.5", "ether");
-  const thirdBidAmount = toWei("1.5", "ether");
 
   before(async () => {
     // Deploy Faker
@@ -57,7 +49,22 @@ contract("Faker", accounts => {
 
   // PERIOD 0
 
+  it('should let users deposit', async () => {
+    await instance.deposit(toWei("100", "ether"), {from: depositor1});
+    const depositor1Balance = await makerInstance.balanceOf(depositor1);
+    assert.equal(depositor1Balance, toWei("900", "ether"), "Unexpected Balance");
 
+    await instance.deposit(toWei("100", "ether"), {from: depositor2});
+    const depositor2Balance = await makerInstance.balanceOf(depositor2);
+    assert.equal(depositor2Balance, toWei("900", "ether"), "Unexpected Balance");
+  });
+
+  it("should not allow depositor to withdraw earnings during shift", async () => {
+    await expectRevert(
+      instance.withdrawEarnings(["0"], {from: depositor1}),
+      "Faker: Earnings For Phase Not Yet Withdrawable"
+    );
+  });
 
   // PERIOD 1
 
@@ -77,8 +84,18 @@ contract("Faker", accounts => {
     assert.equal(leadingBid.amount, toWei("10", "ether"), "Unexpected amount");
   });
 
-  it('should allow depositors to withdraw', async() => {
+  it("should not allow depositor to withdraw earnings for a future phase", async () => {
+    await expectRevert(
+      instance.withdrawEarnings(["1"], {from: depositor1}),
+      "Faker: Phase Is In Future"
+    );
+  });
 
-  })
+  it("should not allow depositor to withdraw earnings during auction", async () => {
+    await expectRevert(
+      instance.withdrawEarnings(["0"], {from: depositor1}),
+      "Faker: Earnings For Phase Not Yet Withdrawable"
+    );
+  });
 
 });

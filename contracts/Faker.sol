@@ -156,11 +156,21 @@ contract Faker {
 
   // ======================================== Voting Phase ========================================
 
-  function withdrawEarnings(uint256[] _phases) external {
+  function withdrawEarnings(uint256[] calldata _phases) external {
     // Whenever you add or withdraw maker, you withdraw earnings
-
+    for(uint256 i = 0; i < _phases.length; i++) {
+      withdrawPhaseEarnings(_phases[i]);
+    }
   }
 
+  function withdrawPhaseEarnings(uint256 _phase) internal {
+    uint256 _currentPhase = getCurrentPhase();
+    require(_phase <= _currentPhase, "Faker: Phase Is In Future");
+
+    bool isCurrentPhase = _phase == _currentPhase;
+    bool isAfterAuction = ((!isShift()) && (!isAuction()));
+    require((!isCurrentPhase) || isAfterAuction, "Faker: Earnings For Phase Not Yet Withdrawable");
+  }
 
   // =========================================== Helpers ===========================================
 

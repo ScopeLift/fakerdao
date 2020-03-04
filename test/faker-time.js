@@ -3,7 +3,7 @@ const { time, expectRevert } = require("@openzeppelin/test-helpers");
 
 const Faker = artifacts.require("Faker");
 
-contract("Faker", accounts => {
+contract("Faker Time", accounts => {
   let instance = null;
   let periodLength = null;
   const utils = web3.utils;

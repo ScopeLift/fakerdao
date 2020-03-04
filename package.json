@@ -4,7 +4,7 @@
   "description": "OpenZeppelin kit containing React, & OpenZeppelin SDK",
   "main": "index.js",
   "scripts": {
-    "ganache": "source .env && ganache-cli -d --gasLimit 0x989680 -i 999",
+    "ganache": "source .env && ganache-cli -d -i 999 -f https://mainnet.infura.io/v3/$INFURA_ID -u $EXCHANGE_ADDRESS",
     "build": "run-s build:*",
     "build:truffle-compile": "rm -f build/contracts/*;truffle compile",
     "test": "run-s lint:* test:*",

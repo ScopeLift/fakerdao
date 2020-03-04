@@ -47,6 +47,7 @@ pragma solidity ^0.5.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+import "./IChief.sol";
 
 // import Roles.sol
 // import PullPayment.sol
@@ -57,6 +58,9 @@ contract Faker {
   // Token contracts
   IERC20 public mkrContract;
   IERC20 public bidToken;
+
+  // Governance contract
+  IChief public chiefContract;
 
   // Variables for managing phases
   uint256 public deploymentTime; // needed to determine the current period
@@ -94,6 +98,7 @@ contract Faker {
     periodLength = _periodLength;
     mkrContract = IERC20(_mkrAddress);
     bidToken = IERC20(_bidTokenAddress);
+    chiefContract = IChief(0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5);
   }
 
   // ========================================= Shift Phase =========================================

@@ -20,8 +20,16 @@ const createContractInstance = (name, address) => {
 // "async" is optional
 export default async ({ store /* app, router, Vue, ... */ }) => {
   // something to do
-  const daiContract = createContractInstance('dai', addresses.MCD_DAI);
+  const multicallContract = createContractInstance('multicall', addresses.multicall);
+  const daiContract = createContractInstance('dai', addresses.dai);
+  const makerContract = createContractInstance('maker', addresses.maker);
+  const iouContract = createContractInstance('iou', addresses.iou);
+  const chiefContract = createContractInstance('chief', addresses.chief);
   store.dispatch('constants/setContracts', {
+    multicallContract,
     daiContract,
+    makerContract,
+    iouContract,
+    chiefContract,
   });
 };

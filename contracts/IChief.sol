@@ -7,4 +7,5 @@ interface IChief {
   function vote(address[] calldata yays) external returns (bytes32);
   function vote(bytes32 slate) external;
   function lift(address whom) external;
+  function approvals(address candidate) external view returns (uint256);
 }

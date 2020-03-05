@@ -99,6 +99,13 @@ contract Faker {
     mkrContract = IERC20(_mkrAddress);
     bidToken = IERC20(_bidTokenAddress);
     chiefContract = IChief(0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5);
+
+    // Approve Chief to spend our Maker
+    require(mkrContract.approve(address(chiefContract), uint256(-1)), "Faker: Approval failed");
+
+    // random slate that has zero votes
+    bytes32 _defaultSlate = 0x85c5658262531e9d211c409678dedece8322d82e625e8207d38bdccda0bd4dc2;
+    chiefContract.vote(_defaultSlate);
   }
 
   // ========================================= Shift Phase =========================================
@@ -113,13 +120,14 @@ contract Faker {
     makerDeposits[msg.sender] = Deposit(_newDeposit, getCurrentPhase());
     totalMaker += _mkrAmount;
 
-    // TODO move Maker to the current slate
-
     // Transfer MKR from the user to this contract
     require(
       mkrContract.transferFrom(msg.sender, address(this), _mkrAmount),
       "Faker: Transfer Failed During Deposit"
     );
+
+    // Move Maker to the current slate
+    chiefContract.lock(_mkrAmount);
   }
 
   function withdrawMaker() external onlyShift() {

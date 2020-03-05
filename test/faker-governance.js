@@ -1,4 +1,4 @@
-const { time, expectRevert, constants, send, ether } = require("@openzeppelin/test-helpers");
+const { time, expectRevert, constants, send, ether} = require("@openzeppelin/test-helpers");
 
 const Faker = artifacts.require("Faker");
 const TestToken = artifacts.require("TestToken");
@@ -21,7 +21,7 @@ async function sendBalance(instance, holder, recipient) {
     await makerInstance.transfer(recipient, balance, {from: holder})
 }
 
-contract("Faker Voting", accounts => {
+contract("Faker Governance", accounts => {
 
     let instance = null;
     let makerInstance = null;
@@ -44,17 +44,14 @@ contract("Faker Voting", accounts => {
         await send.ether(accounts[0], exchangeAddress, ether('1'));
 
         // Deploy Bid Token
-
         bidTokenInstance = await TestToken.new();
 
         // Get Maker & Chief Instance
-
         makerInstance = await IERC20.at(mkrAddress);
         chiefInstance = await IChief.at(chiefAddress);
 
-        // // Deploy Faker
-
-        instance = await Faker.deployed(24 * 60 * 60, makerInstance.address, bidTokenInstance.address);
+        // Deploy Faker
+        instance = await Faker.new(24 * 60 * 60, makerInstance.address, bidTokenInstance.address);
         periodLength = await instance.periodLength();
 
         // Get mock bid token instance
@@ -65,6 +62,13 @@ contract("Faker Voting", accounts => {
         await makerInstance.transfer(depositor1, toWei("1000", "ether"), {from: exchangeAddress})
         await makerInstance.transfer(depositor2, toWei("1000", "ether"), {from: exchangeAddress})
         await makerInstance.transfer(depositor3, toWei("1000", "ether"), {from: exchangeAddress})
+
+        // Approve Faker instance to spend Maker & Bid Token
+        await makerInstance.approve(instance.address, constants.MAX_UINT256, {from: depositor1});
+        await makerInstance.approve(instance.address, constants.MAX_UINT256, {from: depositor2});
+        await makerInstance.approve(instance.address, constants.MAX_UINT256, {from: depositor3});
+        await bidTokenInstance.approve(instance.address, constants.MAX_UINT256, {from: bidder1});
+        await bidTokenInstance.approve(instance.address, constants.MAX_UINT256, {from: bidder2});
     });
 
     it("should find the contract instances", async () => {
@@ -75,14 +79,30 @@ contract("Faker Voting", accounts => {
         assert.equal(chiefAddress, chiefInstance.address, "Chief address not found");
     });
 
+    it('should allow votes to be placed on the slate', async() => {
+        // Check that defaultSlate has 0 votes
+        //   defaultSlate = 0x85c5658262531e9d211c409678dedece8322d82e625e8207d38bdccda0bd4dc2
+        //   this slate has one candidate of 0x7a87acb1f92c50297239ef9b0ef9387105bd4fc5
+        // So, really we check that the candidate has 0 votes
+        const initialVoteCount = await chiefInstance.approvals('0x7a87acb1f92c50297239ef9b0ef9387105bd4fc5');
+
+        // Deposit Maker
+        await instance.deposit(toWei("100", "ether"), {from: depositor1});
+        const expectedFinalCount = initialVoteCount.add(new BN(toWei("100", "ether")));
+
+        // Check that defaultSlate candidate has > 0 votes
+        const finalVoteCount = await chiefInstance.approvals('0x7a87acb1f92c50297239ef9b0ef9387105bd4fc5');
+        assert.equal(finalVoteCount.toString(), expectedFinalCount, "Unexpected vote count");
+    })
+
     after(async () => {
         let balance = await makerInstance.balanceOf(depositor1);
-        await makerInstance.transfer(depositor1, balance, {from: exchangeAddress})
+        await makerInstance.transfer(exchangeAddress, balance, {from:depositor1})
 
         balance = await makerInstance.balanceOf(depositor2);
-        await makerInstance.transfer(depositor2, balance, {from: exchangeAddress})
+        await makerInstance.transfer(exchangeAddress, balance, {from: depositor2})
 
         balance = await makerInstance.balanceOf(depositor3);
-        await makerInstance.transfer(depositor3, balance, {from: exchangeAddress})
+        await makerInstance.transfer(exchangeAddress, balance, {from: depositor3})
     });
 });

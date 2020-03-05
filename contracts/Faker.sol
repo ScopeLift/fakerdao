@@ -91,6 +91,7 @@ contract Faker {
 
   constructor(uint256 _periodLength, address _mkrAddress, address _bidTokenAddress) public {
     // TODO do the below setup here?
+    // TODO get _mkrAddress from chiefContract GOV variable
     // "Welcome to the governance voting dashboard Before you can get started voting
     // you will need to set up a voting contract -- Set up now"
 
@@ -100,11 +101,13 @@ contract Faker {
     bidToken = IERC20(_bidTokenAddress);
     chiefContract = IChief(0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5);
 
-    // Approve Chief to spend our Maker
-    require(mkrContract.approve(address(chiefContract), uint256(-1)), "Faker: Approval failed");
+    // Approve Chief to spend our Maker and IOU
+    require(mkrContract.approve(address(chiefContract), uint256(-1)), "Faker: MKR approval failed");
+    IERC20 _iouContract = IERC20(chiefContract.IOU());
+    require(_iouContract.approve(address(chiefContract), uint256(-1)), "Faker: IOU approval failed");
 
-    // random slate that has zero votes
-    bytes32 _defaultSlate = 0x85c5658262531e9d211c409678dedece8322d82e625e8207d38bdccda0bd4dc2;
+    // Default to current leading candidate
+    bytes32 _defaultSlate = 0x9fcc2b823274b6d91dea0a59083969eb2b3bc41539bd9908df30e141a690b23e;
     chiefContract.vote(_defaultSlate);
   }
 
@@ -139,7 +142,8 @@ contract Faker {
     delete makerDeposits[msg.sender];
     totalMaker -= _balance;
 
-    // TODO move Maker off the current slate
+    // Move Maker off the current slate
+    chiefContract.free(_balance);
 
     // Transfer MKR from the contract to the user
     require(

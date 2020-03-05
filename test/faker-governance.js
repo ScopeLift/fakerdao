@@ -31,6 +31,7 @@ contract("Faker Governance", accounts => {
     const utils = web3.utils;
     const toWei = utils.toWei;
     const BN = utils.BN;
+    let initialVoteCount = null;
 
     const depositor1 = accounts[1];
     const depositor2 = accounts[2];
@@ -49,6 +50,12 @@ contract("Faker Governance", accounts => {
         // Get Maker & Chief Instance
         makerInstance = await IERC20.at(mkrAddress);
         chiefInstance = await IChief.at(chiefAddress);
+
+        // defaultSlate = 0x9fcc2b823274b6d91dea0a59083969eb2b3bc41539bd9908df30e141a690b23e
+        // This slate has one candidate of 0xd24fbbb4497ad32308bda735683b55499ddc2cad
+        // So, really we check that the candidate has 0 votes
+
+        initialVoteCount = await chiefInstance.approvals('0xd24fbbb4497ad32308bda735683b55499ddc2cad');
 
         // Deploy Faker
         instance = await Faker.new(24 * 60 * 60, makerInstance.address, bidTokenInstance.address);
@@ -79,21 +86,51 @@ contract("Faker Governance", accounts => {
         assert.equal(chiefAddress, chiefInstance.address, "Chief address not found");
     });
 
-    it('should allow votes to be placed on the slate', async() => {
-        // Check that defaultSlate has 0 votes
-        //   defaultSlate = 0x85c5658262531e9d211c409678dedece8322d82e625e8207d38bdccda0bd4dc2
-        //   this slate has one candidate of 0x7a87acb1f92c50297239ef9b0ef9387105bd4fc5
-        // So, really we check that the candidate has 0 votes
-        const initialVoteCount = await chiefInstance.approvals('0x7a87acb1f92c50297239ef9b0ef9387105bd4fc5');
+    // PERIOD 0
 
+    it('should place new deposits on the currently selected slate', async() => {
         // Deposit Maker
         await instance.deposit(toWei("100", "ether"), {from: depositor1});
         const expectedFinalCount = initialVoteCount.add(new BN(toWei("100", "ether")));
 
         // Check that defaultSlate candidate has > 0 votes
-        const finalVoteCount = await chiefInstance.approvals('0x7a87acb1f92c50297239ef9b0ef9387105bd4fc5');
+        const finalVoteCount = await chiefInstance.approvals('0xd24fbbb4497ad32308bda735683b55499ddc2cad');
         assert.equal(finalVoteCount.toString(), expectedFinalCount, "Unexpected vote count");
-    })
+    });
+
+    // PERIOD 1
+
+    it('advance time and submit bid and advance more time', async() => {
+        await time.increase(periodLength);
+    });
+
+    // PERIOD 2
+
+    it('should advance time', async () => {
+        await time.increase(periodLength);
+    });
+
+    it('should allow the winning bidder to change the slate', async() => {
+
+    });
+
+    it('should allow the winning bidder to create a new slate', async() => {
+
+    });
+
+    // PERIOD 7
+
+    it('should advance time', async () => {
+        await time.increase(5*periodLength);
+    });
+
+    it('should allow withdrawing Maker and remove it from the selected slate', async() => {
+      await instance.withdrawMaker({from: depositor1});
+      const expectedFinalCount = initialVoteCount;
+
+      const finalVoteCount = await chiefInstance.approvals('0xd24fbbb4497ad32308bda735683b55499ddc2cad');
+      assert.equal(finalVoteCount.toString(), expectedFinalCount, "Unexpected vote count");
+    });
 
     after(async () => {
         let balance = await makerInstance.balanceOf(depositor1);

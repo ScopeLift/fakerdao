@@ -86,7 +86,7 @@ contract Faker {
     uint256 amount;
     uint256 makerAmount; // amount of maker being bid on
   }
-  mapping (uint256 => Bid) public bids; // period number => Bid
+  mapping (uint256 => Bid) public bids; // phase number => Bid
 
 
   constructor(uint256 _periodLength, address _mkrAddress, address _bidTokenAddress) public {
@@ -185,6 +185,17 @@ contract Faker {
 
   // ======================================== Voting Phase ========================================
 
+  function voteByAddresses(address[] calldata _yays) external onlyWinner returns (bytes32) {
+    // Create a slate and vote for it
+    bytes32 _slate = chiefContract.vote(_yays);
+    return _slate;
+  }
+
+  function voteBySlate(bytes32 _slate) external onlyWinner {
+    // Vote for an existing slate
+    chiefContract.vote(_slate);
+  }
+
   function withdrawEarnings(uint256[] calldata _phases) external {
     // Whenever you add or withdraw maker, you withdraw earnings
     for(uint256 i = 0; i < _phases.length; i++) {
@@ -247,6 +258,12 @@ contract Faker {
 
   modifier onlyAuction() {
     require(isAuction(), "Faker: Not Auction Period");
+    _;
+  }
+
+  modifier onlyWinner() {
+    uint256 _phase = getCurrentPhase();
+    require(msg.sender == bids[_phase].bidder, "Faker: Not Auction Winner");
     _;
   }
 }

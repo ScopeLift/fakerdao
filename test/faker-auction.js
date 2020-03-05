@@ -1,8 +1,10 @@
-const { time, expectRevert, constants } = require("@openzeppelin/test-helpers");
-// time docs: https://docs.openzeppelin.com/test-helpers/0.5/api#time
-
+const { time, expectRevert, constants, ether, send } = require("@openzeppelin/test-helpers");
 const Faker = artifacts.require("Faker");
 const TestToken = artifacts.require("TestToken");
+const IERC20 = artifacts.require("IERC20");
+
+const mkrAddress = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"; // GOV
+const exchangeAddress = process.env.EXCHANGE_ADDRESS;
 
 contract("Faker Auctions", accounts => {
   let instance = null;
@@ -11,35 +13,32 @@ contract("Faker Auctions", accounts => {
   let periodLength = null;
   const utils = web3.utils;
   const toWei = utils.toWei;
-  const BN = utils.BN;
 
   const depositor1 = accounts[1];
   const depositor2 = accounts[2];
 
   const bidder1 = accounts[3];
-  const firstBidAmount = toWei("1", "ether");
-  const invalidRefundUseAmount = toWei("1.1", "ether");
-  const bidAdditionAmount = toWei("0.51", "ether");
-  const winningBidAmount = toWei("1.51", "ether");
-
   const bidder2 = accounts[4];
-  const secondBidAmount = toWei("0.5", "ether");
-  const thirdBidAmount = toWei("1.5", "ether");
 
   before(async () => {
+    // Send Ether to a16z MKR address
+    await send.ether(accounts[0], exchangeAddress, ether("1"));
+
+    // Deploy Bid Token (e.g. WETH)
+    bidTokenInstance = await TestToken.new();
+
+    // Get Maker Instance
+    makerInstance = await IERC20.at(mkrAddress);
+
     // Deploy Faker
-    instance = await Faker.deployed();
+    instance = await Faker.new(24 * 60 * 60, bidTokenInstance.address);
     periodLength = await instance.periodLength();
 
     // Get mock Maker token and send tokens to the bidders
-    let makerAddr = await instance.mkrContract();
-    makerInstance = await TestToken.at(makerAddr);
-    await makerInstance.mint(depositor1, toWei("1000", "ether"));
-    await makerInstance.mint(depositor2, toWei("1000", "ether"));
+    await makerInstance.transfer(depositor1, toWei("1000", "ether"), { from: exchangeAddress });
+    await makerInstance.transfer(depositor2, toWei("1000", "ether"), { from: exchangeAddress });
 
-    // Get mock bid token instance
-    let bidTokenAddr = await instance.bidToken();
-    bidTokenInstance = await TestToken.at(bidTokenAddr);
+    // Send bid tokens to bidders
     await bidTokenInstance.mint(bidder1, toWei("100", "ether"));
     await bidTokenInstance.mint(bidder2, toWei("100", "ether"));
 

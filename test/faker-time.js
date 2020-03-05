@@ -1,23 +1,10 @@
-const { time, expectRevert } = require("@openzeppelin/test-helpers");
+const { time } = require("@openzeppelin/test-helpers");
 // time docs: https://docs.openzeppelin.com/test-helpers/0.5/api#time
-
 const Faker = artifacts.require("Faker");
 
 contract("Faker Time", accounts => {
   let instance = null;
   let periodLength = null;
-  const utils = web3.utils;
-  const BN = utils.BN;
-
-  const bidder1 = accounts[1];
-  const firstBidAmount = utils.toWei("1", "ether");
-  const invalidRefundUseAmount = utils.toWei("1.1", "ether");
-  const bidAdditionAmount = utils.toWei("0.51", "ether");
-  const winningBidAmount = utils.toWei("1.51", "ether");
-
-  const bidder2 = accounts[2];
-  const secondBidAmount = utils.toWei("0.5", "ether");
-  const thirdBidAmount = utils.toWei("1.5", "ether");
 
   before(async () => {
     instance = await Faker.deployed();

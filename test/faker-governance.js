@@ -1,11 +1,4 @@
-const {
-  time,
-  expectRevert,
-  constants,
-  send,
-  ether
-} = require("@openzeppelin/test-helpers");
-
+const { time, expectRevert, constants, send, ether } = require("@openzeppelin/test-helpers");
 const Faker = artifacts.require("Faker");
 const TestToken = artifacts.require("TestToken");
 const IERC20 = artifacts.require("IERC20");
@@ -14,18 +7,7 @@ const IChief = artifacts.require("IChief");
 const mkrAddress = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"; // GOV
 const iouAddress = "0x496c67a4ced9c453a60f3166ab4b329870c8e355"; // IOU (Locked GOV)
 const chiefAddress = "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5";
-const hatAddress = "0xD24FbbB4497AD32308BDa735683B55499Ddc2CaD"; // current governing contract
 const exchangeAddress = process.env.EXCHANGE_ADDRESS;
-
-async function stealTokens(instance, amount, holder, recipient) {
-  await instance.transfer(recipient, amount, { from: holder });
-}
-
-async function sendBalance(instance, holder, recipient) {
-  let balance = await instance.balanceOf(holder);
-  // stealTokens(instance, balance, holder, recipient);
-  await makerInstance.transfer(recipient, balance, { from: holder });
-}
 
 contract("Faker Governance", accounts => {
   let instance = null;
@@ -48,7 +30,7 @@ contract("Faker Governance", accounts => {
     // Send Ether to a16z MKR address
     await send.ether(accounts[0], exchangeAddress, ether("1"));
 
-    // Deploy Bid Token
+    // Deploy Bid Token (e.g. WETH)
     bidTokenInstance = await TestToken.new();
 
     // Get Maker & Chief Instance
@@ -62,10 +44,10 @@ contract("Faker Governance", accounts => {
     initialVoteCount = await chiefInstance.approvals("0xd24fbbb4497ad32308bda735683b55499ddc2cad");
 
     // Deploy Faker
-    instance = await Faker.new(24 * 60 * 60, makerInstance.address, bidTokenInstance.address);
+    instance = await Faker.new(24 * 60 * 60, bidTokenInstance.address);
     periodLength = await instance.periodLength();
 
-    // Get mock bid token instance
+    // Send bid tokens to bidders
     await bidTokenInstance.mint(bidder1, toWei("100", "ether"));
     await bidTokenInstance.mint(bidder2, toWei("100", "ether"));
 

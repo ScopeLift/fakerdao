@@ -8,5 +8,6 @@ interface IChief {
   function vote(bytes32 slate) external;
   function lift(address whom) external;
   function approvals(address candidate) external view returns (uint256);
+  function GOV() external view returns (address);
   function IOU() external view returns (address);
 }

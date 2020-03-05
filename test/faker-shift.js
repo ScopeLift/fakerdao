@@ -1,8 +1,9 @@
-const { time, expectRevert, constants } = require("@openzeppelin/test-helpers");
-// time docs: https://docs.openzeppelin.com/test-helpers/0.5/api#time
-
+const { time, expectRevert, constants, send, ether } = require("@openzeppelin/test-helpers");
 const Faker = artifacts.require("Faker");
 const TestToken = artifacts.require("TestToken");
+
+const mkrAddress = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"; // GOV
+const exchangeAddress = process.env.EXCHANGE_ADDRESS;
 
 contract("Faker Shift", accounts => {
   let instance = null;
@@ -10,30 +11,29 @@ contract("Faker Shift", accounts => {
   let periodLength = null;
   const utils = web3.utils;
   const toWei = utils.toWei;
-  const BN = utils.BN;
 
   const depositor1 = accounts[1];
-  const firstBidAmount = toWei("1", "ether");
-  const invalidRefundUseAmount = toWei("1.1", "ether");
-  const bidAdditionAmount = toWei("0.51", "ether");
-  const winningBidAmount = toWei("1.51", "ether");
-
   const depositor2 = accounts[2];
-  const secondBidAmount = toWei("0.5", "ether");
-  const thirdBidAmount = toWei("1.5", "ether");
 
   before(async () => {
+    // Send Ether to a16z MKR address
+    await send.ether(accounts[0], exchangeAddress, ether("1"));
+
+    // Deploy Bid Token (e.g. WETH)
+    bidTokenInstance = await TestToken.new();
+
+    // Get Maker Instance
+    makerInstance = await TestToken.at(mkrAddress);
+
     // Deploy Faker
-    instance = await Faker.deployed();
+    instance = await Faker.new(24 * 60 * 60, bidTokenInstance.address);
     periodLength = await instance.periodLength();
 
-    // Deploy mock Maker token and send tokens to the bidders
-    let makerAddr = await instance.mkrContract();
-    makerInstance = await TestToken.at(makerAddr);
-    await makerInstance.mint(depositor1, toWei("1000", "ether"));
-    await makerInstance.mint(depositor2, toWei("1000", "ether"));
+    // Send MKR to the depositors
+    await makerInstance.transfer(depositor1, toWei("1000", "ether"), { from: exchangeAddress });
+    await makerInstance.transfer(depositor2, toWei("1000", "ether"), { from: exchangeAddress });
 
-    // Approve Faker instance to spend Maker
+    // Approve Faker instance to spend depositors Maker
     await makerInstance.approve(instance.address, constants.MAX_UINT256, {from: depositor1});
     await makerInstance.approve(instance.address, constants.MAX_UINT256, {from: depositor2});
   });

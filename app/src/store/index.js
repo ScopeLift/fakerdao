@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import auth from './auth';
 import constants from './constants';
 
 Vue.use(Vuex);
@@ -17,12 +18,12 @@ Vue.use(Vuex);
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
+      auth,
       constants,
     },
 
     // enable strict mode (adds overhead!)
-    // for dev mode only
-    strict: process.env.DEV,
+    strict: false,
   });
 
   return Store;

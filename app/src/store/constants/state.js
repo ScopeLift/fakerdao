@@ -1,8 +1,12 @@
 export default function () {
   return {
     contracts: {
-      daiContract: undefined,
+      fakerContract: undefined,
       multicallContract: undefined,
+      daiContract: undefined,
+      makerContract: undefined,
+      iouContract: undefined,
+      chiefContract: undefined,
     },
   };
 }

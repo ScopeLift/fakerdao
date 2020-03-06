@@ -7,5 +7,13 @@
 <script>
 export default {
   name: 'App',
+
+  created() {
+    // Every few seconds, check blockchain for updates
+    this.$store.dispatch('auth/pollBlockchain');
+    setInterval(() => {
+      this.$store.dispatch('auth/pollBlockchain');
+    }, 10000);
+  },
 };
 </script>

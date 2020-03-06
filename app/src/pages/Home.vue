@@ -22,7 +22,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          Show current stats here
+          You have {{ userMkrBalance }} MKR to deposit
         </q-card-section>
       </q-card>
 
@@ -43,7 +43,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          Show current stats here
+          {{contractMkrBalance}} MKR available for voting
         </q-card-section>
       </q-card>
     </div>
@@ -51,8 +51,18 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: 'HomePage',
+
+  computed: {
+    ...mapState({
+      userMkrBalance: (state) => state.auth.data.userMkrBalance,
+      contractMkrBalance: (state) => state.auth.data.contractMkrBalance,
+    }),
+  },
+
   methods: {
     navigateToPage(name) {
       this.$router.push({ name });

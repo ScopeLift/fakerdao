@@ -3,7 +3,13 @@ import { ethers } from 'ethers';
 
 const addresses = require('../../../abi/addresses.json');
 
-const provider = ethers.getDefaultProvider('homestead');
+let provider;
+try {
+  // eslint-disable-next-line no-undef
+  provider = new ethers.providers.Web3Provider(web3.currentProvider);
+} catch (err) {
+  provider = ethers.getDefaultProvider('homestead');
+}
 
 
 /**
@@ -20,12 +26,16 @@ const createContractInstance = (name, address) => {
 // "async" is optional
 export default async ({ store /* app, router, Vue, ... */ }) => {
   // something to do
+  const fakerContract = createContractInstance('faker', addresses.faker);
   const multicallContract = createContractInstance('multicall', addresses.multicall);
   const daiContract = createContractInstance('dai', addresses.dai);
   const makerContract = createContractInstance('maker', addresses.maker);
   const iouContract = createContractInstance('iou', addresses.iou);
   const chiefContract = createContractInstance('chief', addresses.chief);
+
+  store.dispatch('auth/setProvider', provider);
   store.dispatch('constants/setContracts', {
+    fakerContract,
     multicallContract,
     daiContract,
     makerContract,

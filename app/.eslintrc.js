@@ -11,10 +11,10 @@ module.exports = {
   },
 
   extends: [
-    'airbnb-base',
     // https://eslint.vuejs.org/rules/#priority-a-essential-error-prevention
     // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
-    'plugin:vue/recommended'
+    'plugin:vue/recommended',
+    'airbnb-base'
   ],
 
   // required to lint *.vue files

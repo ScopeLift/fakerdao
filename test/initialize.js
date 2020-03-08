@@ -1,6 +1,6 @@
 // This test is to initialize ganache accounts with MKR for front end testing
 
-const { time, expectRevert, constants, send, ether } = require("@openzeppelin/test-helpers");
+const { time, expectRevert, constants, send, ether, balance } = require("@openzeppelin/test-helpers");
 const Faker = artifacts.require("Faker");
 const TestToken = artifacts.require("TestToken");
 const IERC20 = artifacts.require("IERC20");
@@ -25,7 +25,12 @@ contract("Initialize ganache for front end", accounts => {
   const bidder3 = accounts[6];
 
   before(async () => {
-    // Send Ether to a16z MKR address
+    // Ensure environment variables were set
+    assert(mkrHolderAddress.startsWith("0x"), "Maker holder address not found");
+    assert(wethHolderAddress.startsWith("0x"), "Weth holder address not found");
+
+    // Send Ether to MKR and WETH holder address
+    await send.ether(accounts[0], wethHolderAddress, ether("1"));
     await send.ether(accounts[0], mkrHolderAddress, ether("1"));
 
     // Deploy Bid Token (WETH)
@@ -45,11 +50,11 @@ contract("Initialize ganache for front end", accounts => {
     await makerInstance.transfer(depositor3, toWei("1000", "ether"), { from: mkrHolderAddress });
 
     // Approve Faker instance to spend Maker & Bid Token
-    await makerInstance.approve(instance.address, constants.MAX_UINT256, { from: depositor1 });
-    await makerInstance.approve(instance.address, constants.MAX_UINT256, { from: depositor2 });
-    await makerInstance.approve(instance.address, constants.MAX_UINT256, { from: depositor3 });
-    await bidTokenInstance.approve(instance.address, constants.MAX_UINT256, { from: bidder1 });
-    await bidTokenInstance.approve(instance.address, constants.MAX_UINT256, { from: bidder2 });
+    // await makerInstance.approve(instance.address, constants.MAX_UINT256, { from: depositor1 });
+    // await makerInstance.approve(instance.address, constants.MAX_UINT256, { from: depositor2 });
+    // await makerInstance.approve(instance.address, constants.MAX_UINT256, { from: depositor3 });
+    // await bidTokenInstance.approve(instance.address, constants.MAX_UINT256, { from: bidder1 });
+    // await bidTokenInstance.approve(instance.address, constants.MAX_UINT256, { from: bidder2 });
   });
 
   it("should initialize ganache for front-end development", async () => {});

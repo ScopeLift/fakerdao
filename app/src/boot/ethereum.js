@@ -17,6 +17,7 @@ export default async ({ store /* app, router, Vue, ... */ }) => {
   // Setup provider
   const provider = await web3Connect.connect();
   const ethersProvider = new ethers.providers.Web3Provider(provider);
+  const signer = ethersProvider.getSigner();
 
   /**
    * @notice Create ethers contract instance
@@ -26,7 +27,7 @@ export default async ({ store /* app, router, Vue, ... */ }) => {
   const createContractInstance = (name, address) => {
     // eslint-disable-next-line
     const abi = require(`../../../abi/${name}.json`);
-    return new ethers.Contract(address, abi, ethersProvider);
+    return new ethers.Contract(address, abi, signer);
   };
 
   // something to do

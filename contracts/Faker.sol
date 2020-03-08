@@ -1,157 +1,259 @@
 pragma solidity ^0.5.0;
 
 /**
- * QUESTIONS
+ * PHASES
+ * Shift: This is the only time MKR can be deposited or withdrawn
+ * Auction: All bidding happens here, MKR is locked, no deposits/withdraws
+ * Voting: Remaining 5 days, MKR is locked (i.e. no deposits/withdraws), earnings withdrawn here
  *
- *   1. What does this do exactly?
- *       "Welcome to the governance voting dashboard Before you can get started voting
- *        you will need to set up a voting contract -- Set up now"
+ * SAME TIMELINE USING DEFAULT PERIOD LENGTH
  *
- * NOTES
- *
- *   - Chief.hat() contains the address of the current cheif (e.g. the winning contract)
- *   - Chief.slates() contains sets of candidates
- *   - When you lock GOV tokens for voting, you receive IOU tokens in return
- *   - To vote:
- *       - First choose a slate with `DSChief.vote(slate)` OR `DSChief.vote(address[])`
- *       - Then call `DSChief.lock(wad)`
- *   - To change vote:
- *       -
- *   - To remove vote, call `DSChief.free(wad)`
- *
- * WORKFLOW
- * Stakeholder = Users who deposit MKR
- *
- *  - Phases
- *      - Auction: 2 days
- *          - MKR floor is locked (i.e. no withdraws)
- *          - Deposits are allowed
- *          - Bids are accepted in Ether
- *              - If Ether, refunds as pull payment. If ERC20/ETH, just transfer token
- *      - Voting: Rolling 1 week period
- *          - Winning bidder can do whatever they want with MKR or MKR is committed to pre-determined slate
- *          - No MKR withdrawals allowed
- *          - MKR deposits are held until next auction
- *          - Pull payments allowed -- What if user doesn't withdraw? Track state, or do they lose payment?
- *
- * ARCHITECTURE
- * Roles: Depositor, Winner, Bidders -- defined in contract, e.g. onlyDepositors, onlyWinner, onlyBidders
-
- *
-     Auction Phase    Vote Phase
- M    0
- T    0
- W                      0
- R                      0
- F                      0
- S                      0
- S                      0
- ----------------------------------
- M    1                 0
- T    1                 0
- W                      1
- R                      1
- F                      1
- S                      1
- S                      1
-
- */
+ *        Phase    isShift    isAuction
+ *     M    0         Y
+ *     T    0                     Y
+ *     W    0
+ *     R    0
+ *     F    0
+ *     S    0
+ *     S    0
+ *     ----------------------------------
+ *     M    1         Y
+ *     T    1                     Y
+ *     W    1
+ *     R    1
+ *     F    1
+ *     S    1
+ *     S    1
+*/
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
-// import Roles.sol
-// import PullPayment.sol
+import "./IChief.sol";
 
 contract Faker {
-  using SafeMath for uint256;
+    using SafeMath for uint256;
 
-  // Token contracts
-  IERC20 public mkrContract;
+    // Token contracts
+    IERC20 public mkrContract;
+    IERC20 public bidToken;
 
-  // Variables for managing phases
-  uint256 public deploymentTime; // needed to determine the current period
-  uint256 public periodLength; // default 1 day
-  uint256 public votingPhaseLength; // default 7 periods
-  uint256 public auctionPhaseLength; // default 2 periods
+    // Governance contract
+    IChief public chiefContract;
 
-  // Variables for managing deposits
-  uint256 public totalDeposited;
-  address[] public depositors;
-  mapping (address => uint256) public balances;
+    // Variables for managing phases
+    uint256 public deploymentTime; // needed to determine the current period
+    uint256 public periodLength; // 1 day
+    uint256 constant phaseLength = 7; // 7 periods
+    uint256 constant shiftPhaseLength = 1; // 1 periods
+    uint256 constant auctionPhaseLength = 1; // 1 periods
 
-  // Variables for managing auction winner
-  address winningBidder;
-
-  constructor(uint256 _periodLength, uint256 _votingPhaseLength, uint256 _auctionPhaseLength) public {
-    require(_auctionPhaseLength <= _votingPhaseLength, "Faker: Auction period duration must be <= voting period duration");
-
-    deploymentTime = now;
-    periodLength = _periodLength;
-    votingPhaseLength = _votingPhaseLength;
-    auctionPhaseLength = _auctionPhaseLength;
-
-    require(auctionPhaseLength.mul(_periodLength) <= 1 weeks, "Faker: Auction period duration must be less than 1 week");
-
-  }
-
-  function submitBid() external {
-  }
-
-  function submitVote() external {
-  }
-
-  function deposit(uint256 _mkrAmount) external {
-    require(_mkrAmount > 0, "Faker: Deposit amount must be greater than zero");
-    // User must approve this contract to spend their MKR
-    // Transfer MKR from the user to this contract
-    // mkrContract.transferFrom(msg.sender, address(this), _mkrAmount);
-    // MKR address: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2
-
-    // Update their MKR balance
-    totalDeposited.add(_mkrAmount);
-    balances[msg.sender].add(_mkrAmount);
-
-    // Add user to list of all depositors
-    if (balances[msg.sender] == 0) {
-      depositors.push(msg.sender);
+    // Variables for managing deposits
+    struct Deposit {
+        uint256 amount; // amount of maker user contributes
+        uint256 phase; // phase when contribution added
     }
-  }
+    mapping(address => Deposit) public makerDeposits;
+    uint256 public totalMaker;
 
-  function claimPayout() external {
-  }
+    // Variables for managing earnings
+    mapping(address => mapping(uint256 => bool)) phaseEarningWithdrawals;
 
+    // Variables for managing bids
+    struct Bid {
+        address bidder;
+        uint256 amount;
+        uint256 makerAmount; // amount of maker being bid on
+    }
+    mapping(uint256 => Bid) public bids; // phase number => Bid
 
-  // ======================================== Helpers ========================================
-  function getCurrentPeriod() public view returns (uint256) {
-    // If periodLength = 1 day, this returns day number
-    return now.sub(deploymentTime).div(periodLength);
-  }
+    constructor(uint256 _periodLength, address _bidTokenAddress) public {
+        // TODO Get _mkrAddress from chiefContract GOV variable
 
-  function getCurrentVotingPhase() public view returns (bool isActive, uint256 phase) {
-    uint256 _period = getCurrentPeriod();
+        // TODO do the below setup here?
+        // "Welcome to the governance voting dashboard Before you can get started voting
+        // you will need to set up a voting contract -- Set up now"
 
-    // If we are in the first two days after deployment, voting has not yet started
-    if (_period <= auctionPhaseLength) {
-      return (false, 0);
+        deploymentTime = now;
+        periodLength = _periodLength;
+        bidToken = IERC20(_bidTokenAddress);
+        chiefContract = IChief(0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5);
+        mkrContract = IERC20(chiefContract.GOV());
+
+        // Approve Chief to spend our Maker and IOU
+        require(
+            mkrContract.approve(address(chiefContract), uint256(-1)),
+            "Faker: MKR approval failed"
+        );
+
+        IERC20 _iouContract = IERC20(chiefContract.IOU());
+        require(
+            _iouContract.approve(address(chiefContract), uint256(-1)),
+            "Faker: IOU approval failed"
+        );
+
+        // Default slate upon deployment will be current leading candidate
+        bytes32 _defaultSlate = 0x9fcc2b823274b6d91dea0a59083969eb2b3bc41539bd9908df30e141a690b23e;
+        chiefContract.vote(_defaultSlate);
     }
 
-    // Otherwise, return the current voting phase number
-    uint256 _phase = _period.div(votingPhaseLength);
-    return (true, _phase);
-  }
+    // ========================================= Shift Phase =========================================
 
-  function getCurrentAuctionPhase() public view returns (bool isActive, uint256 phase) {
-     // If we are in the first two days after deployment, this is the first auction period
-    (bool _isVotingActive, uint256 _votingPhase) = getCurrentVotingPhase();
-    if (!_isVotingActive) {
-      return (true, 0);
+    function deposit(uint256 _mkrAmount) external onlyShift() {
+        // Depositor must approve this contract to spend their MKR
+        // MKR address: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2
+        require(_mkrAmount > 0, "Faker: Deposit amount must be greater than zero");
+
+        // Update state
+        uint256 _newDeposit = makerDeposits[msg.sender].amount.add(_mkrAmount);
+        makerDeposits[msg.sender] = Deposit(_newDeposit, getCurrentPhase());
+        totalMaker += _mkrAmount;
+
+        // Transfer MKR from the user to this contract
+        require(
+            mkrContract.transferFrom(msg.sender, address(this), _mkrAmount),
+            "Faker: Transfer Failed During Deposit"
+        );
+
+        // Move Maker to the current slate
+        chiefContract.lock(_mkrAmount);
     }
 
-    uint256 _period = getCurrentPeriod();
-    // If modulus day, we are in an auction phase
-    // TODO unhardcode the 7 and 8 based on votingPhaseLength, auctionPhaseLength
-    bool _isModulusDay = ( (_period % 7 == 0) || (_period % 8 == 0) );
-    return (_isModulusDay, _votingPhase + 1);
-  }
+    function withdrawMaker() external onlyShift() {
+        // Always require user to withdraw all Maker
+        uint256 _balance = makerDeposits[msg.sender].amount;
+        require(_balance > 0, "Faker: Caller has no deposited Maker");
 
+        // Update state
+        delete makerDeposits[msg.sender];
+        totalMaker -= _balance;
+
+        // Move Maker off the current slate
+        chiefContract.free(_balance);
+
+        // Transfer MKR from the contract to the user
+        require(
+            mkrContract.transfer(msg.sender, _balance),
+            "Faker: Transfer Failed During Withdraw"
+        );
+    }
+
+    // ======================================== Auction Phase ========================================
+
+    function submitBid(uint256 _bidAmount) external onlyAuction() {
+        // Bidder must approve this contract to spend their token
+        require(_bidAmount > 0, "Faker: Bid amount must be greater than zero");
+
+        uint256 _phase = getCurrentPhase();
+        require(_bidAmount > bids[_phase].amount, "Faker: Bid is not above leading bid");
+
+        // Update state
+        Bid memory _previousBid = bids[_phase];
+
+        bids[_phase].bidder = msg.sender;
+        bids[_phase].amount = _bidAmount;
+        bids[_phase].makerAmount = totalMaker;
+
+        // Refund old bidder
+        if (_previousBid.bidder != address(0)) {
+            require(
+                bidToken.transfer(_previousBid.bidder, _previousBid.amount),
+                "Faker: Bid transfer could not be completed"
+            );
+        }
+
+        // Transfer tokens from the user to this contract
+        require(
+            bidToken.transferFrom(msg.sender, address(this), _bidAmount),
+            "Faker: Bid transfer could not be completed"
+        );
+    }
+
+    // ======================================== Voting Phase ========================================
+
+    function voteByAddresses(address[] calldata _yays) external onlyWinner returns (bytes32) {
+        // Create a slate and vote for it
+        bytes32 _slate = chiefContract.vote(_yays);
+        return _slate;
+    }
+
+    function voteBySlate(bytes32 _slate) external onlyWinner {
+        // Vote for an existing slate
+        chiefContract.vote(_slate);
+    }
+
+    function withdrawEarnings(uint256[] calldata _phases) external {
+        // Whenever you add or withdraw maker, you withdraw earnings
+        for (uint256 i = 0; i < _phases.length; i++) {
+            withdrawPhaseEarnings(_phases[i]);
+        }
+    }
+
+    function withdrawPhaseEarnings(uint256 _phase) internal {
+        uint256 _depositPhase = makerDeposits[msg.sender].phase;
+        require(_phase >= _depositPhase, "Faker: Not Eligible For Earnings In This Phase");
+
+        uint256 _currentPhase = getCurrentPhase();
+        require(_phase <= _currentPhase, "Faker: Phase Is In Future");
+        require(
+            !hasWithdrawnEarnings(msg.sender, _phase),
+            "Faker: Earnings For Phase Already Withdrawn"
+        );
+
+        bool isCurrentPhase = _phase == _currentPhase;
+        bool isAfterAuction = ((!isShift()) && (!isAuction()));
+        require(
+            (!isCurrentPhase) || isAfterAuction,
+            "Faker: Earnings For Phase Not Yet Withdrawable"
+        );
+
+        recordEarningsWithdrawal(msg.sender, _phase);
+        uint256 _earnings = makerDeposits[msg.sender].amount
+            .mul(bids[_phase].amount)
+            .div(bids[_phase].makerAmount);
+
+        require(bidToken.transfer(msg.sender, _earnings), "Faker: Earnings Transfer Failed");
+    }
+
+    // =========================================== Helpers ===========================================
+
+    function getCurrentPeriod() public view returns (uint256) {
+        // If periodLength = 1 day, this returns day number
+        return now.sub(deploymentTime).div(periodLength);
+    }
+
+    function getCurrentPhase() public view returns (uint256) {
+        return getCurrentPeriod().div(phaseLength);
+    }
+
+    function isShift() public view returns (bool) {
+        return (getCurrentPeriod() % phaseLength == 0);
+    }
+
+    function isAuction() public view returns (bool) {
+        return (getCurrentPeriod() % phaseLength == 1);
+    }
+
+    function recordEarningsWithdrawal(address _depositor, uint256 _phase) internal {
+        phaseEarningWithdrawals[_depositor][_phase] = true;
+    }
+
+    function hasWithdrawnEarnings(address _depositor, uint256 _phase) public view returns (bool) {
+        return phaseEarningWithdrawals[_depositor][_phase];
+    }
+
+    modifier onlyShift() {
+        require(isShift(), "Faker: Not Shift Period");
+        _;
+    }
+
+    modifier onlyAuction() {
+        require(isAuction(), "Faker: Not Auction Period");
+        _;
+    }
+
+    modifier onlyWinner() {
+        uint256 _phase = getCurrentPhase();
+        require(msg.sender == bids[_phase].bidder, "Faker: Not Auction Winner");
+        _;
+    }
 }

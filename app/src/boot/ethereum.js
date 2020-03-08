@@ -1,5 +1,5 @@
 // import something here
-import Web3 from 'web3';
+// import Web3 from 'web3';
 import Web3Connect from 'web3connect';
 import { ethers } from 'ethers';
 
@@ -16,8 +16,6 @@ const addresses = require('../../../abi/addresses.json');
 export default async ({ store /* app, router, Vue, ... */ }) => {
   // Setup provider
   const provider = await web3Connect.connect();
-  const web3 = new Web3(provider);
-  console.log('web3', web3);
   const ethersProvider = new ethers.providers.Web3Provider(provider);
 
   /**
@@ -33,10 +31,8 @@ export default async ({ store /* app, router, Vue, ... */ }) => {
 
   // something to do
   const fakerContract = createContractInstance('faker', addresses.faker);
-  const multicallContract = createContractInstance(
-    'multicall',
-    addresses.multicall,
-  );
+  const multicallContract = createContractInstance('multicall', addresses.multicall);
+  const wethContract = createContractInstance('weth', addresses.weth);
   const daiContract = createContractInstance('dai', addresses.dai);
   const makerContract = createContractInstance('maker', addresses.maker);
   const iouContract = createContractInstance('iou', addresses.iou);
@@ -46,6 +42,7 @@ export default async ({ store /* app, router, Vue, ... */ }) => {
   store.dispatch('constants/setContracts', {
     fakerContract,
     multicallContract,
+    wethContract,
     daiContract,
     makerContract,
     iouContract,

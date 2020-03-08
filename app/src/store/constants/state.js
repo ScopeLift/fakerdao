@@ -3,6 +3,7 @@ export default function () {
     contracts: {
       fakerContract: undefined,
       multicallContract: undefined,
+      wethContract: undefined,
       daiContract: undefined,
       makerContract: undefined,
       iouContract: undefined,

@@ -1,5 +1,4 @@
 // const addresses = require('../../../../abi/addresses.json');
-import { ethers } from 'ethers';
 
 export function setProvider({ commit }, provider) {
   commit('setProvider', provider);
@@ -12,8 +11,9 @@ export async function pollBlockchain({ commit, rootState }) {
   }
   // Get contracts and addresses
   const {
-    // fakerContract,
+    fakerContract,
     // multicallContract,
+    wethContract,
     // daiContract,
     makerContract,
     // iouContract,
@@ -22,14 +22,18 @@ export async function pollBlockchain({ commit, rootState }) {
 
   // Define promises
   const p1 = makerContract.balanceOf(userAddress);
+  const p2 = makerContract.allowance(userAddress, fakerContract.address);
+  const p3 = wethContract.allowance(userAddress, fakerContract.address);
   // const p2 = fakerContract.totalDeposited();
 
   // Send promises and parse responses
-  const [userMkrBalance] = await Promise.all([p1]);
+  const [userMkrBalance, mkrAllowance, wethAllowance] = await Promise.all([p1, p2, p3]);
   const data = {
-    userMkrBalance: ethers.utils.formatEther(userMkrBalance),
-    // contractMkrBalance: ethers.utils.formatEther(contractMkrBalance),
-    contractMkrBalance: '0.0',
+    contractMkrBalance: userMkrBalance, // TODO update
+    userMkrBalance,
+    mkrAllowance,
+    wethAllowance,
+    // contractMkrBalance: contractMkrBalance,
   };
   commit('setBlockchainData', data);
 }

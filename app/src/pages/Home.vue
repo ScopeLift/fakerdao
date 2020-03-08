@@ -22,7 +22,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          You have {{ userMkrBalance }} MKR to deposit
+          You have {{ formattedUserMkrBalance }} MKR to deposit
         </q-card-section>
       </q-card>
 
@@ -43,7 +43,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          {{ contractMkrBalance }} MKR available for voting
+          {{ formattedContractMkrBalance }} MKR available for voting
         </q-card-section>
       </q-card>
     </div>
@@ -52,6 +52,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import { ethers } from 'ethers';
 
 export default {
   name: 'HomePage',
@@ -61,6 +62,16 @@ export default {
       userMkrBalance: (state) => state.auth.data.userMkrBalance,
       contractMkrBalance: (state) => state.auth.data.contractMkrBalance,
     }),
+
+    formattedUserMkrBalance() {
+      if (this.userMkrBalance === undefined) return '-';
+      return ethers.utils.formatEther(this.userMkrBalance);
+    },
+
+    formattedContractMkrBalance() {
+      if (this.contractMkrBalance === undefined) return '-';
+      return ethers.utils.formatEther(this.contractMkrBalance);
+    },
   },
 
   methods: {

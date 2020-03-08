@@ -1,7 +1,12 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header class="q-mx-md q-mt-md" style="color: #000000; background-color: rgba(0,0,0,0)">
-      <div class="float-right text-caption">Your account: {{ publicAddress }}</div>
+    <q-header
+      class="q-mx-md q-mt-md"
+      style="color: #000000; background-color: rgba(0,0,0,0)"
+    >
+      <div class="float-right text-caption">
+        Account: {{ publicAddress }}
+      </div>
     </q-header>
     <q-page-container>
       <router-view />

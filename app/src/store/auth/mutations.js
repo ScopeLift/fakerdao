@@ -3,5 +3,8 @@ export function setProvider(state, provider) {
 }
 
 export function setBlockchainData(state, data) {
-  state.data = data;
+  state.data.contractMkrBalance = data.contractMkrBalance;
+  state.data.userMkrBalance = data.userMkrBalance;
+  state.data.mkrAllowance = data.mkrAllowance;
+  state.data.wethAllowance = data.wethAllowance;
 }

@@ -7,11 +7,9 @@ export function setProvider({ commit }, provider) {
 
 export async function pollBlockchain({ commit, rootState }) {
   let userAddress;
-  if (rootState.auth.provider.provider) {
-    userAddress = rootState.auth.provider.provider.selectedAddress;
+  if (rootState.auth.provider) {
+    userAddress = rootState.auth.provider.selectedAddress;
   }
-  console.log(userAddress);
-  console.log(typeof userAddress);
   // Get contracts and addresses
   const {
     // fakerContract,

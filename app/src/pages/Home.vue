@@ -43,7 +43,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          {{contractMkrBalance}} MKR available for voting
+          {{ contractMkrBalance }} MKR available for voting
         </q-card-section>
       </q-card>
     </div>

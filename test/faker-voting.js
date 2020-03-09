@@ -199,4 +199,15 @@ contract("Faker Voting", accounts => {
     assert.equal(depositor3Balance, toWei("2", "ether"), "Unexpected Balance");
     assert.equal(contractBalance, toWei("0", "ether"), "Unexpected Balance");
   });
+
+  after(async () => {
+    let balance = await makerInstance.balanceOf(depositor1);
+    await makerInstance.transfer(exchangeAddress, balance, { from: depositor1 });
+
+    balance = await makerInstance.balanceOf(depositor2);
+    await makerInstance.transfer(exchangeAddress, balance, { from: depositor2 });
+
+    balance = await makerInstance.balanceOf(depositor3);
+    await makerInstance.transfer(exchangeAddress, balance, { from: depositor3 });
+  });
 });

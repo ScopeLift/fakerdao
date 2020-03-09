@@ -168,4 +168,12 @@ contract("Faker Auctions", accounts => {
     assert.equal(oldBid.bidder, bidder2, "Unexpected bidder");
     assert.equal(oldBid.amount, toWei("12", "ether"), "Unexpected amount");
   });
+
+  after(async () => {
+    let balance = await makerInstance.balanceOf(depositor1);
+    await makerInstance.transfer(exchangeAddress, balance, { from: depositor1 });
+
+    balance = await makerInstance.balanceOf(depositor2);
+    await makerInstance.transfer(exchangeAddress, balance, { from: depositor2 });
+  });
 });

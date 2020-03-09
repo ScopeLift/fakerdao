@@ -116,4 +116,12 @@ contract("Faker Shift", accounts => {
     depositor1Balance = await makerInstance.balanceOf(depositor1);
     assert.equal(depositor1Balance, toWei("1000", "ether"), "Unexpected Balance");
   });
+
+  after(async () => {
+    let balance = await makerInstance.balanceOf(depositor1);
+    await makerInstance.transfer(exchangeAddress, balance, { from: depositor1 });
+
+    balance = await makerInstance.balanceOf(depositor2);
+    await makerInstance.transfer(exchangeAddress, balance, { from: depositor2 });
+  });
 });

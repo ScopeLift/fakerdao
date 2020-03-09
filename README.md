@@ -1,6 +1,23 @@
 # FakerDAO
 
-MKR governance auction
+Minimum viable implementation of a MKR token governance auction. Pool your tokens and sell their voting power to the highest bidder.
+
+* Any MKR holder can lock their tokens in the contract.
+* Every seven days, the contract holds an auction in which anyone can submit bids denominated in WETH (or any ERC20 specified at deployment).
+* The highest bidder wins the right to control the MKR locked in the contract for the next seven days.
+*  MKR depositors are paid out after each auction for the proportion of the MKR they contributed.
+* At the end of each cycle, MKR withdraws/deposits are permitted, and the process starts again.
+
+<big>For a more detailed write up on FakerDAO, and how it effects Maker governance incentives,  [read more](https://www.scopelift.co/blog/fakerdao) on the ScopeLift blog.</big>
+
+## Development Requirements
+
+* npm v6.5 (or later)
+* node v11.6 (or later)
+* Truffle v5.1 (or later)
+* solc v0.5.16
+* ganache-cli v6.9.1 (or later)
+* An Infura ID (free account) or Ethereum node
 
 ## Setup
 

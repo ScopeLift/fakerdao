@@ -1,0 +1,14 @@
+{
+  "contracts": {},
+  "solidityLibs": {},
+  "proxies": {
+    "faker-dao/Faker": [
+      {
+        "address": "0xBbb73EC8520c8D5cB1047635007C08bcE13A6Af0",
+        "kind": "NonProxy",
+        "bytecodeHash": "fd0862f52559ad24eaff1ac56baf1f1f2c36e25d4a2c833fc1504399dc5cb7eb"
+      }
+    ]
+  },
+  "manifestVersion": "2.2"
+}

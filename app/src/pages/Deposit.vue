@@ -26,29 +26,31 @@
 
     <hr class="q-my-xl">
 
-    <div style="max-width:400px; margin: 0 auto;">
+    <div>
       <!-- IF USER NEEDS TO APPROVE MAKER -->
       <div
         v-if="!hasMakerAllowance"
         class="row justify-center"
       >
-        <div class="col-xs-12 text-center">
-          Before depositing, you'll need to approve the Faker contract
-          to spend your MKR. Click the button below to send this transaction.
-        </div>
+        <div style="max-width:400px; margin: 0 auto;">
+          <div class="col-xs-12 text-center">
+            Before depositing, you'll need to approve the Faker contract
+            to spend your MKR. Click the button below to send this transaction.
+          </div>
 
-        <div class="q-my-xl">
-          <q-btn
-            color="primary"
-            label="Approve!"
-            style="margin: 0 auto;"
-            :loading="isLoading"
-            @click="approveFakerToSpendMaker()"
-          />
-        </div>
+          <div class="row justify-center q-my-xl">
+            <q-btn
+              color="primary"
+              label="Approve!"
+              style="margin: 0 auto;"
+              :loading="isLoading"
+              @click="approveFakerToSpendMaker()"
+            />
+          </div>
 
-        <div class="col-xs-12 text-center text-italic text-caption">
-          This page will automatically update when the transaction is complete.
+          <div class="col-xs-12 text-center text-italic text-caption">
+            This page will automatically update when the transaction is complete.
+          </div>
         </div>
       </div>
 
@@ -57,51 +59,74 @@
         v-else
         class="text-center"
       >
-        <div>
-          Enter the amount of MKR to deposit
+        <div style="max-width:400px; margin: 0 auto;">
+          <div>
+            <div>
+              Enter the amount of MKR to deposit
+            </div>
+            <div class="col-xs-12 row justify-center">
+              <q-btn
+                color="primary"
+                flat
+                label="25%"
+                @click="setMakerAmount(0.25)"
+              />
+              <q-btn
+                color="primary"
+                flat
+                label="50%"
+                @click="setMakerAmount(0.50)"
+              />
+              <q-btn
+                color="primary"
+                flat
+                label="75%"
+                @click="setMakerAmount(0.75)"
+              />
+              <q-btn
+                color="primary"
+                flat
+                label="100%"
+                @click="setMakerAmount(1)"
+              />
+            </div>
+            <q-input
+              v-model.number="mkrDepositAmount"
+              class="q-py-lg"
+              filled
+              label="MKR Amount"
+              style="max-width:200px; margin: 0 auto;"
+              :rules="[ val => isValidAmount(val)
+                || `Enter a value between 0 and ${parseFloat(formattedUserMkrBalance).toPrecision(4)}`]"
+            />
+            <q-btn
+              class="q-mt-md"
+              color="primary"
+              :loading="isLoading"
+              label="Deposit!"
+              style="min-width: 150px;"
+              @click="deposit()"
+            />
+          </div>
         </div>
-        <div class="col-xs-12 row justify-center">
-          <q-btn
-            color="primary"
-            flat
-            label="25%"
-            @click="setMakerAmount(0.25)"
-          />
-          <q-btn
-            color="primary"
-            flat
-            label="50%"
-            @click="setMakerAmount(0.50)"
-          />
-          <q-btn
-            color="primary"
-            flat
-            label="75%"
-            @click="setMakerAmount(0.75)"
-          />
-          <q-btn
-            color="primary"
-            flat
-            label="100%"
-            @click="setMakerAmount(1)"
-          />
+        <div v-if="hasMkrDeposits">
+          <hr class="q-my-xl">
+          <div style="max-width:450px; margin: 0 auto;">
+            <div>
+              <div>
+                This version of FakerDAO requires all MKR to be withdrawn. If you'd like to withdraw just a portion,
+                withdraw all of it then make a new deposit.
+              </div>
+              <q-btn
+                class="q-mt-xl"
+                color="primary"
+                label="Withdraw!"
+                style="min-width: 150px;"
+                @click="withdraw()"
+              />
+            </div>
+          </div>
         </div>
-        <q-input
-          v-model.number="mkrDepositAmount"
-          class="q-py-lg"
-          filled
-          label="MKR Amount"
-          style="max-width:200px; margin: 0 auto;"
-          :rules="[ val => isValidAmount(val)
-            || `Enter a value between 0 and ${parseFloat(formattedUserMkrBalance).toPrecision(4)}`]"
-        />
-        <q-btn
-          class="q-mt-md"
-          color="primary"
-          label="Deposit!"
-          style="min-width: 150px;"
-          @click="deposit()"
-        />
       </div>
     </div>
   </q-page>
@@ -135,6 +160,10 @@ export default {
       return this.mkrAllowance.gt(ethers.constants.Zero);
     },
 
+    hasMkrDeposits() {
+      return Number(this.formattedUserMkrDepositAmount) > 0;
+    },
+
     formattedUserMkrBalance() {
       if (this.userMkrBalance === undefined) return '-';
       return ethers.utils.formatEther(this.userMkrBalance);
@@ -160,9 +189,18 @@ export default {
       this.mkrDepositAmount = parseFloat(this.formattedUserMkrBalance) * fraction;
     },
 
+
     async deposit() {
+      this.isLoading = true;
       const amount = ethers.utils.parseEther(String(this.mkrDepositAmount));
       await this.fakerContract.deposit(amount);
+      this.isLoading = false;
+    },
+
+    async withdraw() {
+      this.isLoading = true;
+      await this.fakerContract.withdrawMaker();
+      this.isLoading = false;
     },
   },
 };

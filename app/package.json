@@ -9,6 +9,7 @@
   "private": true,
   "scripts": {
     "dev": "npx quasar dev",
+    "build": "source .env && npx quasar build && firebase deploy",
     "lint": "eslint --ext .js,.vue src --fix",
     "test": "echo \"No test specified\" && exit 0"
   },

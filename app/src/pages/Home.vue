@@ -32,7 +32,7 @@
             Deposit MKR
           </div>
           <div class="text-subtitle2">
-            Got MKR you're not using? Auction it off and make some money
+            Got MKR you're not using for voting? Auction its voting power and make some money
           </div>
         </q-card-section>
         <q-separator inset />

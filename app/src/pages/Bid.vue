@@ -25,7 +25,7 @@
 
       <hr class="q-my-xl">
 
-      <div style="max-width:400px; margin: 0 auto;">
+      <div style="max-width:450px; margin: 0 auto;">
         <!-- IF USER NEEDS TO APPROVE WETH -->
         <div
           v-if="!hasWethAllowance"

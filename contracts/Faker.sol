@@ -76,7 +76,7 @@ contract Faker {
         deploymentTime = now;
         periodLength = _periodLength;
         bidToken = IERC20(_bidTokenAddress);
-        chiefContract = IChief(0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5);
+        chiefContract = IChief(0xbBFFC76e94B34F72D96D054b31f6424249c1337d);
         mkrContract = IERC20(chiefContract.GOV());
 
         // Approve Chief to spend our Maker and IOU

@@ -4,6 +4,5 @@ export function setContracts(state, contracts) {
   state.contracts.wethContract = contracts.wethContract;
   state.contracts.daiContract = contracts.daiContract;
   state.contracts.makerContract = contracts.makerContract;
-  state.contracts.iouContract = contracts.iouContract;
   state.contracts.chiefContract = contracts.chiefContract;
 }

@@ -36,7 +36,6 @@ export default async ({ store /* app, router, Vue, ... */ }) => {
   const wethContract = createContractInstance('weth', addresses.weth);
   const daiContract = createContractInstance('dai', addresses.dai);
   const makerContract = createContractInstance('maker', addresses.maker);
-  const iouContract = createContractInstance('iou', addresses.iou);
   const chiefContract = createContractInstance('chief', addresses.chief);
 
   store.dispatch('auth/setProvider', provider);
@@ -46,7 +45,6 @@ export default async ({ store /* app, router, Vue, ... */ }) => {
     wethContract,
     daiContract,
     makerContract,
-    iouContract,
     chiefContract,
   });
 };

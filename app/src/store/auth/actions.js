@@ -16,7 +16,6 @@ export async function pollBlockchain({ commit, rootState }) {
     wethContract,
     // daiContract,
     makerContract,
-    // iouContract,
     // chiefContract,
   } = rootState.constants.contracts;
 

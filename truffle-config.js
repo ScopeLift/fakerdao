@@ -10,7 +10,7 @@ const configNetwork = (network, networkId, path = "m/44'/60'/0'/0/", gas = 44650
     mnemonic, `https://${network}.infura.io/v3/${INFURA_ID}`,
         0, 1, true, path
     ),
-  networkId,
+  network_id: networkId,
   gas,
   gasPrice,
 });
@@ -34,5 +34,5 @@ module.exports = {
         enabled: true,
         runs: 200
     }
-  }
+  },
 };

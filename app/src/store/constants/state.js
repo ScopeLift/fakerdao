@@ -6,7 +6,6 @@ export default function () {
       wethContract: undefined,
       daiContract: undefined,
       makerContract: undefined,
-      iouContract: undefined,
       chiefContract: undefined,
     },
   };

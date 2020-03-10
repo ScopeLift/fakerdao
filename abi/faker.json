@@ -3,5 +3,11 @@
   "function periodLength() view returns (uint256)",
   "function totalMaker() view returns (uint256)",
   "function isShift() view returns (bool)",
-  "function isAuction() view returns (bool)"
+  "function isAuction() view returns (bool)",
+  "function deposit(uint256) external",
+  "function withdrawMaker() external",
+  "function submitBid(uint256) external",
+  "function voteByAddresses(address[]) external returns (bytes32)",
+  "function voteByAddresses(bytes32) external",
+  "function withdrawEarnings(uint256[]) external"
 ]

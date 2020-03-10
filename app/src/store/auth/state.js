@@ -16,12 +16,14 @@ export default function () {
       leadingBidder: undefined, // bidder leading the current auction
       isShift: undefined,
       isAuction: undefined,
-      currentPhase: undefined, // Shift, Auction, or Voting
-      nextPhase: undefined, // Shift, Auction, or Voting
+      currentPeriod: undefined,
+      currentPhase: undefined, // Deposit/Withdraw, Auction, or Voting
+      nextPhase: undefined, // Deposit/Withdraw, Auction, or Voting
       deploymentTime: undefined,
       periodLength: undefined,
       totalMaker: undefined, // MKR available to bid on
       currentPhaseNumber: undefined,
+      phaseLength: undefined,
       currentWinner: undefined,
     },
   };

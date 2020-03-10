@@ -12,5 +12,7 @@
   "function withdrawEarnings(uint256[]) external",
   "function makerDeposits(address) view returns (uint256,uint256)",
   "function getCurrentPhase() external view returns (uint256)",
-  "function bids(uint256) external view returns (address,uint256,uint256)"
+  "function bids(uint256) external view returns (address,uint256,uint256)",
+  "function getCurrentPeriod() external view returns (uint256)",
+  "function phaseLength() external view returns (uint256)"
 ]

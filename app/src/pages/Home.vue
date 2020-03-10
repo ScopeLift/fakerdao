@@ -15,7 +15,11 @@
       </div>
 
       <div class="col-auto q-mx-md q-my-xs">
-        <span class="text-bold">Time Until Next Phase:</span> TODO {{ timeRemaining }}
+        <span class="text-bold">Date Next Phase Stars:</span> {{ dateNextPhaseStarts }}
+      </div>
+
+      <div class="col-auto q-mx-md q-my-xs">
+        <span class="text-bold">Time Until Next Phase:</span> {{ timeUntilNextPhase }}
       </div>
     </div>
 
@@ -89,21 +93,37 @@
 <script>
 import { mapState } from 'vuex';
 import { ethers } from 'ethers';
+import { date } from 'quasar';
 
 export default {
   name: 'HomePage',
+
+  data() {
+    return {
+      now: undefined,
+    };
+  },
+
+  created() {
+    // eslint-disable-next-line
+    setInterval(() => this.now = new Date(), 10000);
+  },
 
   computed: {
     ...mapState({
       userMkrBalance: (state) => state.auth.data.userMkrBalance,
       userWethBalance: (state) => state.auth.data.userWethBalance,
+      isShift: (state) => state.auth.faker.isShift,
+      isAuction: (state) => state.auth.faker.isAuction,
       totalMaker: (state) => state.auth.faker.totalMaker,
       winningBidder: (state) => state.auth.faker.winningBidder,
       leadingBidder: (state) => state.auth.faker.leadingBidder,
       currentPhase: (state) => state.auth.faker.currentPhase,
+      currentPeriod: (state) => state.auth.faker.currentPeriod,
       nextPhase: (state) => state.auth.faker.nextPhase,
       deploymentTime: (state) => parseFloat(state.auth.faker.deploymentTime.toString()),
       periodLength: (state) => parseFloat(state.auth.faker.periodLength.toString()),
+      phaseLength: (state) => parseFloat(state.auth.faker.periodLength.toString()),
     }),
 
     formattedUserMkrBalance() {
@@ -121,17 +141,50 @@ export default {
       return ethers.utils.formatEther(this.totalMaker);
     },
 
-    timeRemaining() {
-      // Get current period
-      const now = (new Date()).getTime() / 1000;
-      const currentPeriod = Math.floor((now - this.deploymentTime) / this.periodLength);
-      return currentPeriod;
+    timeToNextPhase() {
+      if (this.isShift) {
+        return this.timeToPeriodOffset(1);
+      }
+
+      if (this.isAuction) {
+        return this.timeToPeriodOffset(1);
+      }
+
+      const currentPeriod = parseInt(this.currentPeriod, 10);
+      const periodsToNextPhase = this.phaseLength - (currentPeriod % this.phaseLength);
+
+      return this.timeToPeriodOffset(periodsToNextPhase);
+    },
+
+    dateNextPhaseStarts() {
+      const today = new Date();
+      const theDate = date.addToDate(today, { seconds: this.timeToNextPhase });
+      return date.formatDate(theDate, 'YYYY-MM-DD HH:mm');
+    },
+
+    timeUntilNextPhase() {
+      const secondsRemaining = date.getDateDiff(this.dateNextPhaseStarts, new Date(), 'seconds');
+      const hours = Math.floor(secondsRemaining / 3600);
+      const secondsLeft = secondsRemaining % 3600;
+      const minutes = Math.floor(secondsLeft / 60);
+      // const seconds = secondsLeft % 60;
+      return `${hours} hours ${minutes} minutes`;
     },
   },
 
   methods: {
     navigateToPage(name) {
       this.$router.push({ name });
+    },
+
+    timeToPeriodOffset(periodOffset) {
+      const periodLength = parseInt(this.periodLength, 10);
+      const deploymentTime = parseInt(this.deploymentTime, 10);
+      const currentPeriod = parseInt(this.currentPeriod, 10);
+      const nextPeriodTime = deploymentTime + (currentPeriod + periodOffset) * periodLength;
+      const secondsToNextPeriod = nextPeriodTime - (Date.now() / 1000); // assumes local clock is correct
+      console.log(secondsToNextPeriod);
+      return secondsToNextPeriod;
     },
   },
 };

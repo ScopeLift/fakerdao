@@ -1,9 +1,30 @@
 <template>
   <q-page padding>
     <div class="text-center">
-      <h1>Deposit</h1>
-      <h6>Avaialble Balance: {{ formattedUserMkrBalance }} MKR</h6>
+      <div class="text-h1 q-mt-xl">
+        Deposit or Withdraw
+      </div>
+      <div
+        v-if="isShift"
+        class="text-h6 q-my-md"
+      >
+        Deposits and withdraws are currently active!
+      </div>
+      <div
+        v-else
+        class="text-h6 q-my-md"
+      >
+        Deposits and withdraws will open up during the next Shift Phase
+      </div>
+      <div>
+        <span class="text-bold">Your Available MKR to Deposit: </span>{{ formattedUserMkrBalance }} MKR
+      </div>
+      <div>
+        <span class="text-bold">Your Available MKR to Withdraw: </span>{{ formattedUserMkrDepositAmount }} MKR
+      </div>
     </div>
+
+    <hr class="q-my-xl">
 
     <div style="max-width:400px; margin: 0 auto;">
       <!-- IF USER NEEDS TO APPROVE MAKER -->
@@ -11,20 +32,24 @@
         v-if="!hasMakerAllowance"
         class="row justify-center"
       >
-        <div class="col-xs-12 text-center q-mb-xl">
+        <div class="col-xs-12 text-center">
           Before depositing, you'll need to approve the Faker contract
           to spend your MKR. Click the button below to send this transaction.
         </div>
+
+        <div class="q-my-xl">
+          <q-btn
+            color="primary"
+            label="Approve!"
+            style="margin: 0 auto;"
+            :loading="isLoading"
+            @click="approveFakerToSpendMaker()"
+          />
+        </div>
+
         <div class="col-xs-12 text-center text-italic text-caption">
           This page will automatically update when the transaction is complete.
         </div>
-
-        <q-btn
-          color="primary"
-          label="Approve!"
-          style="margin: 0 auto;"
-          @click="approveFakerToSpendMaker()"
-        />
       </div>
 
       <!-- DEPOSIT FUNCTIONALITY -->
@@ -91,6 +116,7 @@ export default {
 
   data() {
     return {
+      isLoading: false,
       mkrDepositAmount: undefined,
     };
   },
@@ -99,8 +125,10 @@ export default {
     ...mapState({
       mkrAllowance: (state) => state.auth.data.mkrAllowance,
       userMkrBalance: (state) => state.auth.data.userMkrBalance,
+      userMkrDepositAmount: (state) => state.auth.data.userMkrDepositAmount,
       fakerContract: (state) => state.constants.contracts.fakerContract,
       makerContract: (state) => state.constants.contracts.makerContract,
+      isShift: (state) => state.auth.faker.isShift,
     }),
 
     hasMakerAllowance() {
@@ -111,11 +139,17 @@ export default {
       if (this.userMkrBalance === undefined) return '-';
       return ethers.utils.formatEther(this.userMkrBalance);
     },
+    formattedUserMkrDepositAmount() {
+      if (this.userMkrDepositAmount === undefined) return '-';
+      return ethers.utils.formatEther(this.userMkrDepositAmount);
+    },
   },
 
   methods: {
     async approveFakerToSpendMaker() {
+      this.isLoading = true;
       await this.makerContract.approve(this.fakerContract.address, ethers.constants.MaxUint256);
+      this.isLoading = false;
     },
 
     isValidAmount(amount) {

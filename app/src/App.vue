@@ -13,7 +13,7 @@ export default {
     this.$store.dispatch('auth/pollBlockchain');
     setInterval(() => {
       this.$store.dispatch('auth/pollBlockchain');
-    }, 10000);
+    }, 7000);
   },
 };
 </script>

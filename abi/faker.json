@@ -9,5 +9,6 @@
   "function submitBid(uint256) external",
   "function voteByAddresses(address[]) external returns (bytes32)",
   "function voteByAddresses(bytes32) external",
-  "function withdrawEarnings(uint256[]) external"
+  "function withdrawEarnings(uint256[]) external",
+  "function makerDeposits(address) view returns (uint256,uint256)"
 ]

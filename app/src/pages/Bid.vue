@@ -1,14 +1,20 @@
 <template>
   <q-page padding>
     <div class="text-center">
-      <div class="text-h1">
+      <div class="text-h1 q-mt-xl">
         Bid
       </div>
       <div
-        v-if="!isAuction"
+        v-if="isAuction"
         class="text-h6 q-my-md"
       >
-        Bidding will open up during the next auction phase
+        Bidding is live now!
+      </div>
+      <div
+        v-else
+        class="text-h6 q-my-md"
+      >
+        Bidding will open up during the next Auction Phase
       </div>
       <div>
         <span class="text-bold">Available WETH for Bidding:</span> {{ formattedUserWethBalance }} WETH

@@ -5,6 +5,8 @@ export default function () {
     data: {
       contractMkrBalance: undefined,
       userMkrBalance: undefined,
+      userMkrDepositAmount: undefined,
+      userMkrDepositPhase: undefined,
       mkrAllowance: undefined,
       userWethBalance: undefined,
       wethAllowance: undefined,

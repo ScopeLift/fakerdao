@@ -15,7 +15,7 @@
       </div>
 
       <div class="col-auto q-mx-md q-my-xs">
-        <span class="text-bold">Time Until Next Phase:</span> {{ timeRemaining }} TODO
+        <span class="text-bold">Time Until Next Phase:</span> TODO {{ timeRemaining }}
       </div>
     </div>
 
@@ -79,7 +79,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          The current winning bidder is {{ winningBidder }}
+          The current winning bidder is TODO {{ winningBidder }}
         </q-card-section>
       </q-card>
     </div>

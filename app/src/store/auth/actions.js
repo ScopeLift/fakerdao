@@ -32,6 +32,7 @@ export async function pollBlockchain({ commit, rootState }) {
   const p7 = fakerContract.deploymentTime();
   const p8 = fakerContract.periodLength();
   const p9 = fakerContract.totalMaker();
+  const p10 = fakerContract.makerDeposits(userAddress);
 
   // Send promises and parse responses
   const [
@@ -44,7 +45,8 @@ export async function pollBlockchain({ commit, rootState }) {
     deploymentTime,
     periodLength,
     totalMaker,
-  ] = await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9]);
+    mkrDepositInfo,
+  ] = await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10]);
 
   let currentPhase;
   let nextPhase;
@@ -59,6 +61,9 @@ export async function pollBlockchain({ commit, rootState }) {
     nextPhase = 'Shift';
   }
 
+  const userMkrDepositAmount = mkrDepositInfo[0];
+  const userMkrDepositPhase = mkrDepositInfo[1];
+
   const data = {
     userMkrBalance,
     mkrAllowance,
@@ -71,6 +76,8 @@ export async function pollBlockchain({ commit, rootState }) {
     deploymentTime,
     periodLength,
     totalMaker,
+    userMkrDepositAmount,
+    userMkrDepositPhase,
   };
   commit('setBlockchainData', data);
 }

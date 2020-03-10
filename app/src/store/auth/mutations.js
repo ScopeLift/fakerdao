@@ -9,6 +9,8 @@ export function setUserAddress(state, userAddress) {
 export function setBlockchainData(state, data) {
   state.data.contractMkrBalance = data.contractMkrBalance;
   state.data.userMkrBalance = data.userMkrBalance;
+  state.data.userMkrDepositAmount = data.userMkrDepositAmount;
+  state.data.userMkrDepositPhase = data.userMkrDepositPhase;
   state.data.mkrAllowance = data.mkrAllowance;
   state.data.userWethBalance = data.userWethBalance;
   state.data.wethAllowance = data.wethAllowance;

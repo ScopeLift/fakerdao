@@ -26,6 +26,7 @@ Create a file called `.env` that looks like the following:
 ```bash
 export INFURA_ID=yourInfuraId
 export EXCHANGE_ADDRESS=0x05E793cE0C6027323Ac150F6d45C2344d28B6019
+export WETH_HOLDER_ADDRESS=0x07320dEb2713370A3D7b49189fc2F99906E1ae8E
 ```
 
 Then run the following commands:
@@ -43,11 +44,10 @@ npm install
 
 ## Kovan Deployment
 
-This project is deployed on the Kovan test network.
-The Maker Kovan addresses can be found in `abi/addresses.json`, and were
+This project is deployed on the Kovan test network at `0xBbb73EC8520c8D5cB1047635007C08bcE13A6Af0`.
+All required Maker Kovan addresses can be found in `abi/addresses.json`, and were
 sourced from the Maker
 [changelog](https://changelog.makerdao.com/releases/kovan/1.0.3/contracts.json).
-The Faker contract can be found on Kovan at `0xde61938000ff6c94A66245c037D2FB48992D591d`.
 
 To interact with this contract as a depositor, you will need MKR. To get this:
 

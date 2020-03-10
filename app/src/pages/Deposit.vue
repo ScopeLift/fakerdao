@@ -43,7 +43,7 @@
               color="primary"
               label="Approve!"
               style="margin: 0 auto;"
-              :loading="isLoading"
+              :loading="isApprovalLoading"
               @click="approveFakerToSpendMaker()"
             />
           </div>
@@ -102,9 +102,9 @@
             <q-btn
               class="q-mt-md"
               color="primary"
-              :loading="isLoading"
               label="Deposit!"
               style="min-width: 150px;"
+              :loading="isDepositLoading"
               @click="deposit()"
             />
           </div>
@@ -122,6 +122,7 @@
                 color="primary"
                 label="Withdraw!"
                 style="min-width: 150px;"
+                :loading="isWithdrawLoading"
                 @click="withdraw()"
               />
             </div>
@@ -141,7 +142,9 @@ export default {
 
   data() {
     return {
-      isLoading: false,
+      isApprovalLoading: false,
+      isDepositLoading: false,
+      isWithdrawLoading: false,
       mkrDepositAmount: undefined,
     };
   },
@@ -176,9 +179,9 @@ export default {
 
   methods: {
     async approveFakerToSpendMaker() {
-      this.isLoading = true;
+      this.isApprovalLoading = true;
       await this.makerContract.approve(this.fakerContract.address, ethers.constants.MaxUint256);
-      this.isLoading = false;
+      this.isApprovalLoading = false;
     },
 
     isValidAmount(amount) {
@@ -191,16 +194,16 @@ export default {
 
 
     async deposit() {
-      this.isLoading = true;
+      this.isDepositLoading = true;
       const amount = ethers.utils.parseEther(String(this.mkrDepositAmount));
       await this.fakerContract.deposit(amount);
-      this.isLoading = false;
+      this.isDepositLoading = false;
     },
 
     async withdraw() {
-      this.isLoading = true;
+      this.isWithdrawLoading = true;
       await this.fakerContract.withdrawMaker();
-      this.isLoading = false;
+      this.isWithdrawLoading = false;
     },
   },
 };

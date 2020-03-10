@@ -4,8 +4,17 @@
       class="q-mx-md q-mt-md"
       style="color: #000000; background-color: rgba(0,0,0,0)"
     >
-      <div class="float-right text-caption">
-        Account: {{ userAddress }}
+      <div class="row justify-between items-center">
+        <div
+          class="text-h5"
+          style="cursor: pointer;"
+          @click="$router.push({ name: 'home' });"
+        >
+          FakerDAO
+        </div>
+        <div class="text-caption">
+          Account: {{ userAddress }}
+        </div>
       </div>
     </q-header>
     <q-page-container>

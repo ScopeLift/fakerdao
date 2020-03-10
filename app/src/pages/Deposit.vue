@@ -16,7 +16,7 @@
           to spend your MKR. Click the button below to send this transaction.
         </div>
         <div class="col-xs-12 text-center text-italic text-caption">
-          This page will automatically update when the transactionis complete.
+          This page will automatically update when the transaction is complete.
         </div>
 
         <q-btn

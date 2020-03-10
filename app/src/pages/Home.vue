@@ -58,7 +58,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          You have {{ formattedUserWethBalance }} WETH to bid on {{ formattedContractMkrBalance }} MKR
+          You have {{ formattedUserWethBalance }} WETH to bid on {{ formattedTotalMkrBalance }} MKR
         </q-card-section>
       </q-card>
 
@@ -97,7 +97,7 @@ export default {
     ...mapState({
       userMkrBalance: (state) => state.auth.data.userMkrBalance,
       userWethBalance: (state) => state.auth.data.userWethBalance,
-      contractMkrBalance: (state) => state.auth.data.contractMkrBalance,
+      totalMaker: (state) => state.auth.faker.totalMaker,
       winningBidder: (state) => state.auth.faker.winningBidder,
       leadingBidder: (state) => state.auth.faker.leadingBidder,
       currentPhase: (state) => state.auth.faker.currentPhase,
@@ -116,9 +116,9 @@ export default {
       return ethers.utils.formatEther(this.userWethBalance);
     },
 
-    formattedContractMkrBalance() {
-      if (this.contractMkrBalance === undefined) return '-';
-      return ethers.utils.formatEther(this.contractMkrBalance);
+    formattedTotalMkrBalance() {
+      if (this.totalMaker === undefined) return '-';
+      return ethers.utils.formatEther(this.totalMaker);
     },
 
     timeRemaining() {

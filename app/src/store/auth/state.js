@@ -18,6 +18,7 @@ export default function () {
       nextPhase: undefined, // Shift, Auction, or Voting
       deploymentTime: undefined,
       periodLength: undefined,
+      totalMaker: undefined, // MKR available to bid on
     },
   };
 }

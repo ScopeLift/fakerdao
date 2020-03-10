@@ -15,9 +15,18 @@ const addresses = require('../../../abi/addresses.json');
 
 export default async ({ store /* app, router, Vue, ... */ }) => {
   // Setup provider
-  const provider = await web3Connect.connect();
-  const ethersProvider = new ethers.providers.Web3Provider(provider);
-  const signer = ethersProvider.getSigner();
+  let ethersProvider;
+  let signer;
+  if (web3Connect.providers.length === 0) {
+    // Fallback to ethers provider
+    ethersProvider = ethers.getDefaultProvider('homestead');
+    signer = ethersProvider; // not actually a signer
+  } else {
+    // Otherwise use user's web3
+    const provider = await web3Connect.connect();
+    ethersProvider = new ethers.providers.Web3Provider(provider);
+    signer = ethersProvider.getSigner();
+  }
 
   /**
    * @notice Create ethers contract instance
@@ -32,13 +41,16 @@ export default async ({ store /* app, router, Vue, ... */ }) => {
 
   // something to do
   const fakerContract = createContractInstance('faker', addresses.faker);
-  const multicallContract = createContractInstance('multicall', addresses.multicall);
+  const multicallContract = createContractInstance(
+    'multicall',
+    addresses.multicall,
+  );
   const wethContract = createContractInstance('weth', addresses.weth);
   const daiContract = createContractInstance('dai', addresses.dai);
   const makerContract = createContractInstance('maker', addresses.maker);
   const chiefContract = createContractInstance('chief', addresses.chief);
 
-  store.dispatch('auth/setProvider', provider);
+  store.dispatch('auth/setProvider', ethersProvider);
   store.dispatch('constants/setContracts', {
     fakerContract,
     multicallContract,

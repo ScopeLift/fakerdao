@@ -7,13 +7,21 @@
     >
       <div class="row justify-between items-center">
         <div
-          class="text-h5"
+          class="row justify-start items-center"
           style="cursor: pointer;"
           @click="$router.push({ name: 'home' });"
         >
-          FakerDAO
+          <img
+            alt="FakerDAO logo"
+            class="q-mx-md"
+            src="statics/app-logo-128x128.png"
+            style="max-width: 50px;"
+          >
+          <div class="text-h5">
+            FakerDAO
+          </div>
         </div>
-        <div class="text-caption">
+        <div class="text-caption q-mr-md">
           Account: {{ userAddress }}
         </div>
       </div>
@@ -29,7 +37,10 @@
       style="color: #000000; background-color: rgba(0,0,0,0)"
     >
       <div class="row justify-center items-center q-my-xl">
-        <div class="text-caption">
+        <div
+          class="text-caption"
+          style="max-width: 800px;"
+        >
           This website, the corresponding
           <a
             href="https://www.scopelift.co/blog/fakerdao"
@@ -66,6 +77,16 @@
             target="_blank"
             class="hyperlink"
           >ScopeLift</a>.
+          <br><br>
+          Icon made by <a
+            href="https://www.flaticon.com/authors/freepik"
+            target="_blank"
+            class="hyperlink"
+          >Freepik</a> from <a
+            href="http://www.flaticon.com/"
+            target="_blank"
+            class="hyperlink"
+          >https://www.flaticon.com/</a>.
         </div>
       </div>
     </q-footer>

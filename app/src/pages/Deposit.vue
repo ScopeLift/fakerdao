@@ -61,6 +61,9 @@
       >
         <div style="max-width:400px; margin: 0 auto;">
           <div>
+            <h6 style="margin:0 0 1em;">
+              Deposit MKR
+            </h6>
             <div>
               Enter the amount of MKR to deposit
             </div>
@@ -111,20 +114,56 @@
         </div>
         <div v-if="hasMkrDeposits">
           <hr class="q-my-xl">
-          <div style="max-width:450px; margin: 0 auto;">
-            <div>
-              <div>
-                This version of FakerDAO requires all MKR to be withdrawn. If you'd like to withdraw just a portion,
-                withdraw all of it then make a new deposit.
+          <div style="max-width:900px; margin: 0 auto;">
+            <div class="q-mb-xl row justify-center">
+              <!-- WITHDRAW MAKER -->
+              <div
+                class="col-auto q-mr-md"
+                style="max-width: 325px;"
+              >
+                <h6 style="margin: 0">
+                  Withdraw Maker
+                </h6>
+                <div
+                  class="q-mt-md text-justify"
+                  style="min-height:75px;"
+                >
+                  This version of FakerDAO requires all MKR to be withdrawn.
+                  If you'd like to withdraw just a portion,
+                  withdraw all of it then make a new deposit.
+                </div>
+                <q-btn
+                  class="q-mt-xl"
+                  color="primary"
+                  label="Withdraw MKR!"
+                  style="min-width: 150px;"
+                  :loading="isWithdrawMkrLoading"
+                  @click="withdrawMkr()"
+                />
               </div>
-              <q-btn
-                class="q-mt-xl"
-                color="primary"
-                label="Withdraw!"
-                style="min-width: 150px;"
-                :loading="isWithdrawLoading"
-                @click="withdraw()"
-              />
+              <!-- WITHDRAW EARNINGS -->
+              <div
+                class="col-auto q-ml-md"
+                style="max-width: 325px;"
+              >
+                <h6 style="margin: 0">
+                  Withdraw Earnings
+                </h6>
+                <div
+                  class="q-mt-md text-justify"
+                  style="min-height:75px;"
+                >
+                  This version of FakerDAO requires all earnings to be withdrawn.
+                </div>
+                <q-btn
+                  class="q-mt-xl"
+                  color="primary"
+                  label="Withdraw Earnings!"
+                  style="min-width: 150px;"
+                  :loading="isWithdrawEarningsLoading"
+                  @click="withdrawEarnings()"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -144,7 +183,8 @@ export default {
     return {
       isApprovalLoading: false,
       isDepositLoading: false,
-      isWithdrawLoading: false,
+      isWithdrawMkrLoading: false,
+      isWithdrawEarningsLoading: false,
       mkrDepositAmount: undefined,
     };
   },
@@ -154,9 +194,12 @@ export default {
       mkrAllowance: (state) => state.auth.data.mkrAllowance,
       userMkrBalance: (state) => state.auth.data.userMkrBalance,
       userMkrDepositAmount: (state) => state.auth.data.userMkrDepositAmount,
+      userMkrDepositPhase: (state) => state.auth.data.userMkrDepositPhase,
       fakerContract: (state) => state.constants.contracts.fakerContract,
       makerContract: (state) => state.constants.contracts.makerContract,
       isShift: (state) => state.auth.faker.isShift,
+      isAuction: (state) => state.auth.faker.isAuction,
+      currentPhase: (state) => state.auth.faker.currentPhase,
     }),
 
     hasMakerAllowance() {
@@ -200,10 +243,25 @@ export default {
       this.isDepositLoading = false;
     },
 
-    async withdraw() {
-      this.isWithdrawLoading = true;
+    async withdrawMkr() {
+      this.isWithdrawMkrLoading = true;
       await this.fakerContract.withdrawMaker();
-      this.isWithdrawLoading = false;
+      this.isWithdrawMkrLoading = false;
+    },
+
+    async withdrawEarnings() {
+      this.isWithdrawEarningsLoading = true;
+      const startPhase = this.userMkrDepositPhase;
+      const endPhase = !this.isShift && !this.isAuction ? this.currentPhase : this.currentPhase - 1;
+      const phases = [];
+      for (let i = startPhase; i < endPhase; i += 1) { phases.push(i); }
+      if (phases.length === 0) {
+        // eslint-disable-next-line no-alert
+        alert('Nothing to withdraw!');
+      } else {
+        await this.fakerContract.withdrawEarnings(phases);
+      }
+      this.isWithdrawEarningsLoading = false;
     },
   },
 };

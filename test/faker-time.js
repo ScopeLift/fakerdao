@@ -2,6 +2,20 @@ const { time } = require("@openzeppelin/test-helpers");
 // time docs: https://docs.openzeppelin.com/test-helpers/0.5/api#time
 const Faker = artifacts.require("Faker");
 
+async function timeToPeriodOffset(instance, periodOffset = 1) {
+  const periodLength = parseInt( (await instance.periodLength()).toString(10) );
+  const deploymentTime = parseInt( (await instance.deploymentTime()).toString(10) );
+  const currentPeriod = parseInt( (await instance.getCurrentPeriod()).toString(10) );
+  const nextPeriodTime = deploymentTime + (currentPeriod + periodOffset) * periodLength
+  console.log("period length", periodLength);
+  console.log("deployment time", deploymentTime);
+  console.log("current period", currentPeriod);
+  console.log("next period time", nextPeriodTime);
+  console.log("Now", Date.now());
+  const secondsToNextPeriod = nextPeriodTime - (Date.now() / 1000); // assumes local clock is correct
+  return secondsToNextPeriod;
+}
+
 contract("Faker Time", accounts => {
   let instance = null;
   let periodLength = null;
@@ -20,6 +34,7 @@ contract("Faker Time", accounts => {
   it("should start at period 0", async () => {
     const period = await instance.getCurrentPeriod();
     assert.equal(period, 0, "Invalid initial period");
+    console.log("Time to next period: ", await timeToPeriodOffset(instance));
   });
 
   it("should be in phase 0 during the 0th period", async () => {

@@ -9,5 +9,15 @@ export default function () {
       userWethBalance: undefined,
       wethAllowance: undefined,
     },
+    faker: {
+      winningBidder: undefined, // bidder who won the last auction
+      leadingBidder: undefined, // bidder leading the current auction
+      isShift: undefined,
+      isAuction: undefined,
+      currentPhase: undefined, // Shift, Auction, or Voting
+      nextPhase: undefined, // Shift, Auction, or Voting
+      deploymentTime: undefined,
+      periodLength: undefined,
+    },
   };
 }

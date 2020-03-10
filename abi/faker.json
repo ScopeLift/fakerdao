@@ -1,3 +1,7 @@
 [
-  "function totalMaker() view returns (uint256)"
+  "function deploymentTime() view returns (uint256)",
+  "function periodLength() view returns (uint256)",
+  "function totalMaker() view returns (uint256)",
+  "function isShift() view returns (bool)",
+  "function isAuction() view returns (bool)"
 ]

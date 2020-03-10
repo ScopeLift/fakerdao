@@ -12,4 +12,11 @@ export function setBlockchainData(state, data) {
   state.data.mkrAllowance = data.mkrAllowance;
   state.data.userWethBalance = data.userWethBalance;
   state.data.wethAllowance = data.wethAllowance;
+
+  state.faker.isShift = data.isShift;
+  state.faker.isAuction = data.isAuction;
+  state.faker.currentPhase = data.currentPhase;
+  state.faker.nextPhase = data.nextPhase;
+  state.faker.deploymentTime = data.deploymentTime;
+  state.faker.periodLength = data.periodLength;
 }

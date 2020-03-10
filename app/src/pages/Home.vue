@@ -3,12 +3,27 @@
     <h1 class="text-center">
       FakerDAO
     </h1>
+    <div
+      class="row justify-center"
+      style="max-width: 400px; margin: 0 auto; margin-top: -3em;"
+    >
+      <div class="col-auto q-mx-md q-my-xs">
+        <span class="text-bold">Current Phase:</span> {{ currentPhase }}
+      </div>
+      <div class="col-auto q-mx-md q-my-xs">
+        <span class="text-bold">Next Phase:</span> {{ nextPhase }}
+      </div>
 
-    <div class="row justify-center">
+      <div class="col-auto q-mx-md q-my-xs">
+        <span class="text-bold">Time Until Next Phase:</span> {{ timeRemaining }} TODO
+      </div>
+    </div>
+
+    <div class="row justify-center q-mt-lg">
       <!-- DEPOSIT -->
       <q-card
         bordered
-        class="col-auto card-border q-mr-md"
+        class="col-auto card-border q-ma-md"
         style="max-width: 400px"
         @click="navigateToPage('deposit')"
       >
@@ -29,7 +44,7 @@
       <!-- BID -->
       <q-card
         bordered
-        class="col-auto card-border q-ml-md"
+        class="col-auto card-border q-ma-md"
         style="max-width: 400px"
         @click="navigateToPage('bid')"
       >
@@ -44,6 +59,27 @@
         <q-separator inset />
         <q-card-section>
           You have {{ formattedUserWethBalance }} WETH to bid on {{ formattedContractMkrBalance }} MKR
+        </q-card-section>
+      </q-card>
+
+      <!-- BID -->
+      <q-card
+        bordered
+        class="col-auto card-border q-ma-md"
+        style="max-width: 400px"
+        @click="navigateToPage('bid')"
+      >
+        <q-card-section>
+          <div class="text-h6">
+            Vote with MKR
+          </div>
+          <div class="text-subtitle2">
+            When you're the winning bidder, you can click here to choose a slate to vote on
+          </div>
+        </q-card-section>
+        <q-separator inset />
+        <q-card-section>
+          The current winning bidder is {{ winningBidder }}
         </q-card-section>
       </q-card>
     </div>
@@ -62,6 +98,12 @@ export default {
       userMkrBalance: (state) => state.auth.data.userMkrBalance,
       userWethBalance: (state) => state.auth.data.userWethBalance,
       contractMkrBalance: (state) => state.auth.data.contractMkrBalance,
+      winningBidder: (state) => state.auth.faker.winningBidder,
+      leadingBidder: (state) => state.auth.faker.leadingBidder,
+      currentPhase: (state) => state.auth.faker.currentPhase,
+      nextPhase: (state) => state.auth.faker.nextPhase,
+      deploymentTime: (state) => parseFloat(state.auth.faker.deploymentTime.toString()),
+      periodLength: (state) => parseFloat(state.auth.faker.periodLength.toString()),
     }),
 
     formattedUserMkrBalance() {
@@ -77,6 +119,13 @@ export default {
     formattedContractMkrBalance() {
       if (this.contractMkrBalance === undefined) return '-';
       return ethers.utils.formatEther(this.contractMkrBalance);
+    },
+
+    timeRemaining() {
+      // Get current period
+      const now = (new Date()).getTime() / 1000;
+      const currentPeriod = Math.floor((now - this.deploymentTime) / this.periodLength);
+      return currentPeriod;
     },
   },
 

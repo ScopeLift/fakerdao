@@ -54,18 +54,7 @@
             class="hyperlink"
           >source code</a>
           were co-authored by
-          <a
-            href="https://twitter.com/msolomon44"
-            target="_blank"
-            class="hyperlink"
-          >Matt Solomon</a>
-          of
-          <a
-            href="https://floatify.net"
-            target="_blank"
-            class="hyperlink"
-          >Floatify</a>
-          and
+
           <a
             href="https://twitter.com/BenDiFrancesco"
             target="_blank"
@@ -76,7 +65,20 @@
             href="https://www.scopelift.co/home"
             target="_blank"
             class="hyperlink"
-          >ScopeLift</a>.
+          >ScopeLift</a>
+          and
+          <a
+            href="https://twitter.com/msolomon44"
+            target="_blank"
+            class="hyperlink"
+          >Matt Solomon</a>
+          of
+          <a
+            href="https://floatify.net"
+            target="_blank"
+            class="hyperlink"
+          >Floatify</a>.
+
           <br><br>
           Icon made by <a
             href="https://www.flaticon.com/authors/freepik"

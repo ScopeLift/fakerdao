@@ -64,6 +64,13 @@ contract Faker {
     }
     mapping(uint256 => Bid) public bids; // phase number => Bid
 
+    // Events
+    event MakeDeposit(address indexed depositer, uint256 indexed phase, uint256 indexed amount);
+    event WithdrawDeposit(address indexed withdrawer, uint256 indexed phase, uint256 indexed amount);
+    event SubmitBid(address indexed bidder, uint256 indexed phase, uint256 indexed amount);
+    event ChangeVote(address indexed voter, uint256 indexed phase, bytes32 indexed slate);
+    event WithdrawEarnings(address indexed withdrawer, uint256 indexed earnedPhase, uint256 indexed amount);
+
     constructor(uint256 _periodLength, address _bidTokenAddress) public {
         deploymentTime = now;
         periodLength = _periodLength;
@@ -97,7 +104,8 @@ contract Faker {
 
         // Update state
         uint256 _newDeposit = makerDeposits[msg.sender].amount.add(_mkrAmount);
-        makerDeposits[msg.sender] = Deposit(_newDeposit, getCurrentPhase());
+        uint256 _currentPhase = getCurrentPhase();
+        makerDeposits[msg.sender] = Deposit(_newDeposit, _currentPhase);
         totalMaker += _mkrAmount;
 
         // Transfer MKR from the user to this contract
@@ -108,6 +116,8 @@ contract Faker {
 
         // Move Maker to the current slate
         chiefContract.lock(_mkrAmount);
+
+        emit MakeDeposit(msg.sender, _currentPhase, _mkrAmount);
     }
 
     function withdrawMaker() external onlyShift() {
@@ -127,6 +137,8 @@ contract Faker {
             mkrContract.transfer(msg.sender, _balance),
             "Faker: Transfer Failed During Withdraw"
         );
+
+        emit WithdrawDeposit(msg.sender, getCurrentPhase(), _balance);
     }
 
     // ======================================== Auction Phase ========================================
@@ -158,6 +170,8 @@ contract Faker {
             bidToken.transferFrom(msg.sender, address(this), _bidAmount),
             "Faker: Bid transfer could not be completed"
         );
+
+        emit SubmitBid(msg.sender, _phase, _bidAmount);
     }
 
     // ======================================== Voting Phase ========================================
@@ -165,11 +179,13 @@ contract Faker {
     function voteByAddresses(address[] calldata _yays) external onlyWinner returns (bytes32) {
         // Create a slate and vote for it
         bytes32 _slate = chiefContract.vote(_yays);
+        emit ChangeVote(msg.sender, getCurrentPhase(), _slate);
         return _slate;
     }
 
     function voteBySlate(bytes32 _slate) external onlyWinner {
         // Vote for an existing slate
+        emit ChangeVote(msg.sender, getCurrentPhase(), _slate);
         chiefContract.vote(_slate);
     }
 
@@ -204,6 +220,8 @@ contract Faker {
             .div(bids[_phase].makerAmount);
 
         require(bidToken.transfer(msg.sender, _earnings), "Faker: Earnings Transfer Failed");
+
+        emit WithdrawEarnings(msg.sender, _depositPhase, _earnings);
     }
 
     // =========================================== Helpers ===========================================

@@ -7,13 +7,26 @@ async function timeToPeriodOffset(instance, periodOffset = 1) {
   const deploymentTime = parseInt( (await instance.deploymentTime()).toString(10) );
   const currentPeriod = parseInt( (await instance.getCurrentPeriod()).toString(10) );
   const nextPeriodTime = deploymentTime + (currentPeriod + periodOffset) * periodLength
-  console.log("period length", periodLength);
-  console.log("deployment time", deploymentTime);
-  console.log("current period", currentPeriod);
-  console.log("next period time", nextPeriodTime);
-  console.log("Now", Date.now());
   const secondsToNextPeriod = nextPeriodTime - (Date.now() / 1000); // assumes local clock is correct
   return secondsToNextPeriod;
+}
+
+async function timeToNextActionPeriod(instance) {
+  const isShift = await instance.isShift();
+  if (isShift) {
+    return (await timeToPeriodOffset(instance, 1));
+  }
+
+  const isAuction = await instance.isAuction();
+  if (isAuction) {
+    return (await timeToPeriodOffset(instance, 1));
+  }
+
+  const currentPeriod = parseInt( (await instance.getCurrentPeriod()).toString(10) );
+  const phaseLength = 7; // How to get constant from contract? //parseInt( (await instance.phaseLength()).toString(10) );
+  const periodsToNextPhase = phaseLength - (currentPeriod % phaseLength);
+
+  return (await timeToPeriodOffset(instance, periodsToNextPhase));
 }
 
 contract("Faker Time", accounts => {
@@ -34,7 +47,7 @@ contract("Faker Time", accounts => {
   it("should start at period 0", async () => {
     const period = await instance.getCurrentPeriod();
     assert.equal(period, 0, "Invalid initial period");
-    console.log("Time to next period: ", await timeToPeriodOffset(instance));
+    console.log("Time to next action 0: ", await timeToNextActionPeriod(instance));
   });
 
   it("should be in phase 0 during the 0th period", async () => {
@@ -58,6 +71,7 @@ contract("Faker Time", accounts => {
     await time.increase(periodLength);
     const isAuction = await instance.isAuction();
     assert(isAuction, "Invalid auctions status");
+    console.log("Time to next action 1: ", await timeToNextActionPeriod(instance));
   });
 
   it("shift should not be active during period 1", async () => {
@@ -71,6 +85,7 @@ contract("Faker Time", accounts => {
     await time.increase(periodLength);
     const isAuction = await instance.isAuction();
     assert(!isAuction, "Invalid auctions status");
+    console.log("Time to next action 2: ", await timeToNextActionPeriod(instance));
   });
 
   it("shift should not be active during period 2", async () => {
@@ -84,6 +99,7 @@ contract("Faker Time", accounts => {
     await time.increase(5 * periodLength);
     const period = await instance.getCurrentPeriod();
     assert.equal(period, 7, "Invalid period");
+    console.log("Time to next action 7: ", await timeToNextActionPeriod(instance));
   });
 
   it("should be in phase 1 during the 7th period", async () => {
@@ -107,6 +123,7 @@ contract("Faker Time", accounts => {
     await time.increase(periodLength);
     const period = await instance.getCurrentPeriod();
     assert.equal(period, 8, "Invalid period");
+    console.log("Time to next action 8: ", await timeToNextActionPeriod(instance));
   });
 
   it("should be in phase 1 during the 8th period", async () => {

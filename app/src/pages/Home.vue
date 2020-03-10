@@ -104,11 +104,6 @@ export default {
     };
   },
 
-  created() {
-    // eslint-disable-next-line
-    setInterval(() => this.now = new Date(), 10000);
-  },
-
   computed: {
     ...mapState({
       userMkrBalance: (state) => state.auth.data.userMkrBalance,
@@ -172,6 +167,11 @@ export default {
     },
   },
 
+  created() {
+    // eslint-disable-next-line
+    setInterval(() => this.now = new Date(), 10000);
+  },
+
   methods: {
     navigateToPage(name) {
       this.$router.push({ name });
@@ -183,7 +183,6 @@ export default {
       const currentPeriod = parseInt(this.currentPeriod, 10);
       const nextPeriodTime = deploymentTime + (currentPeriod + periodOffset) * periodLength;
       const secondsToNextPeriod = nextPeriodTime - (Date.now() / 1000); // assumes local clock is correct
-      console.log(secondsToNextPeriod);
       return secondsToNextPeriod;
     },
   },

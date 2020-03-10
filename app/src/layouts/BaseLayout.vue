@@ -34,31 +34,37 @@
           <a
             href="https://www.scopelift.co/blog/fakerdao"
             target="_blank"
+            class="hyperlink"
           >article</a>,
           and the FakerDAO contract
           <a
             href="https://github.com/scopelift/fakerdao"
             target="_blank"
+            class="hyperlink"
           >source code</a>
           were co-authored by
           <a
             href="https://twitter.com/msolomon44"
             target="_blank"
+            class="hyperlink"
           >Matt Solomon</a>
           of
           <a
             href="https://floatify.net"
             target="_blank"
+            class="hyperlink"
           >Floatify</a>
           and
           <a
             href="https://twitter.com/BenDiFrancesco"
             target="_blank"
+            class="hyperlink"
           >Ben DiFrancesco</a>
           of
           <a
             href="https://www.scopelift.co/home"
             target="_blank"
+            class="hyperlink"
           >ScopeLift</a>.
         </div>
       </div>

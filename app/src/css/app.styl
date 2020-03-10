@@ -3,3 +3,30 @@
   border: 1px solid $primary;
   cursor pointer
 }
+
+h1 {
+  margin: 1rem 0 3rem;
+  font-family: monospace
+}
+h2 {
+  margin: 1rem 0 1rem;
+  font-family: monospace
+}
+
+h6, .text-h6 {
+  font-family: monospace
+  font-weight: bold
+}
+
+.hyperlink {
+  color: $primary;
+  text-decoration: underline;
+  cursor: pointer;
+  // Without this, the underline extends into the space for some reason
+  // solution source: https://stackoverflow.com/questions/23182904/css-underline-text-but-ignore-the-spaces
+  display:inline-block;
+}
+
+.primary-color-text {
+  color: $primary
+}

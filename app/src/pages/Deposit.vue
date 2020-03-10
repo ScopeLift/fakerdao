@@ -1,9 +1,9 @@
 <template>
   <q-page padding>
     <div class="text-center">
-      <div class="text-h1 q-mt-xl">
+      <h2>
         Deposit or Withdraw
-      </div>
+      </h2>
       <div
         v-if="isShift"
         class="text-h6 q-my-md"

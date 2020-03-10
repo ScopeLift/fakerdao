@@ -39,7 +39,10 @@
             Got MKR you're not using for voting? Auction its voting power and make some money
           </div>
         </q-card-section>
-        <q-separator inset />
+        <q-separator
+          inset
+          color="primary"
+        />
         <q-card-section>
           You have {{ formattedUserMkrBalance }} MKR to deposit
         </q-card-section>
@@ -60,7 +63,10 @@
             If you're the highest bidder, you have full control of the MKR for one week
           </div>
         </q-card-section>
-        <q-separator inset />
+        <q-separator
+          inset
+          color="primary"
+        />
         <q-card-section>
           You have {{ formattedUserWethBalance }} WETH to bid on {{ formattedTotalMkrBalance }} MKR
         </q-card-section>
@@ -81,7 +87,10 @@
             When you're the winning bidder, you can click here to choose a slate to vote on
           </div>
         </q-card-section>
-        <q-separator inset />
+        <q-separator
+          inset
+          color="primary"
+        />
         <q-card-section>
           The current winning bidder is {{ currentWinner }}
         </q-card-section>

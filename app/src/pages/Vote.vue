@@ -1,9 +1,9 @@
 <template>
   <q-page padding>
     <div class="text-center">
-      <div class="text-h1 q-mt-xl">
+      <h2>
         Vote
-      </div>
+      </h2>
       <div class="text-h6 q-my-md">
         Voting is live for the current winning bidder!
       </div>

@@ -12,7 +12,6 @@ export default function () {
       wethAllowance: undefined,
     },
     faker: {
-      winningBidder: undefined, // bidder who won the last auction
       leadingBidder: undefined, // bidder leading the current auction
       isShift: undefined,
       isAuction: undefined,

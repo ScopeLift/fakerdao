@@ -83,7 +83,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          The current winning bidder is TODO {{ winningBidder }}
+          The current winning bidder is {{ currentWinner }}
         </q-card-section>
       </q-card>
     </div>
@@ -111,7 +111,7 @@ export default {
       isShift: (state) => state.auth.faker.isShift,
       isAuction: (state) => state.auth.faker.isAuction,
       totalMaker: (state) => state.auth.faker.totalMaker,
-      winningBidder: (state) => state.auth.faker.winningBidder,
+      currentWinner: (state) => state.auth.faker.currentWinner,
       leadingBidder: (state) => state.auth.faker.leadingBidder,
       currentPhase: (state) => state.auth.faker.currentPhase,
       currentPeriod: (state) => state.auth.faker.currentPeriod,

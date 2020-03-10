@@ -43,7 +43,7 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
-          {{ formattedContractMkrBalance }} MKR available for voting
+          You have {{ formattedUserWethBalance }} WETH to bid on {{ formattedContractMkrBalance }} MKR
         </q-card-section>
       </q-card>
     </div>
@@ -60,12 +60,18 @@ export default {
   computed: {
     ...mapState({
       userMkrBalance: (state) => state.auth.data.userMkrBalance,
+      userWethBalance: (state) => state.auth.data.userWethBalance,
       contractMkrBalance: (state) => state.auth.data.contractMkrBalance,
     }),
 
     formattedUserMkrBalance() {
       if (this.userMkrBalance === undefined) return '-';
       return ethers.utils.formatEther(this.userMkrBalance);
+    },
+
+    formattedUserWethBalance() {
+      if (this.userWethBalance === undefined) return '-';
+      return ethers.utils.formatEther(this.userWethBalance);
     },
 
     formattedContractMkrBalance() {

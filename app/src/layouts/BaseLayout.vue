@@ -5,7 +5,7 @@
       style="color: #000000; background-color: rgba(0,0,0,0)"
     >
       <div class="float-right text-caption">
-        Account: {{ publicAddress }}
+        Account: {{ userAddress }}
       </div>
     </q-header>
     <q-page-container>
@@ -22,7 +22,7 @@ export default {
 
   computed: {
     ...mapState({
-      publicAddress: (state) => state.auth.provider.selectedAddress,
+      userAddress: (state) => state.auth.userAddress,
     }),
   },
 };

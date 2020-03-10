@@ -8,7 +8,9 @@
   "function withdrawMaker() external",
   "function submitBid(uint256) external",
   "function voteByAddresses(address[]) external returns (bytes32)",
-  "function voteByAddresses(bytes32) external",
+  "function voteBySlate(bytes32) external",
   "function withdrawEarnings(uint256[]) external",
-  "function makerDeposits(address) view returns (uint256,uint256)"
+  "function makerDeposits(address) view returns (uint256,uint256)",
+  "function getCurrentPhase() external view returns (uint256)",
+  "function bids(uint256) external view returns (address,uint256,uint256)"
 ]

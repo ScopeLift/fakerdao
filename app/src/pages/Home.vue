@@ -62,12 +62,12 @@
         </q-card-section>
       </q-card>
 
-      <!-- BID -->
+      <!-- VOTING -->
       <q-card
         bordered
         class="col-auto card-border q-ma-md"
         style="max-width: 400px"
-        @click="navigateToPage('bid')"
+        @click="navigateToPage('vote')"
       >
         <q-card-section>
           <div class="text-h6">

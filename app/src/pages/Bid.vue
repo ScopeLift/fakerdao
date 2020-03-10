@@ -162,9 +162,10 @@ export default {
     },
 
     async bid() {
+      this.isLoading = true;
       const amount = ethers.utils.parseEther(String(this.wethBidAmount));
-      console.log('amount: ', amount);
       await this.fakerContract.submitBid(amount);
+      this.isLoading = false;
     },
   },
 

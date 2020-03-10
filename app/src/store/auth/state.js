@@ -21,6 +21,8 @@ export default function () {
       deploymentTime: undefined,
       periodLength: undefined,
       totalMaker: undefined, // MKR available to bid on
+      currentPhaseNumber: undefined,
+      currentWinner: undefined,
     },
   };
 }

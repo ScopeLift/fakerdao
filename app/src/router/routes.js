@@ -14,6 +14,11 @@ const routes = [
         path: '/bid',
         component: () => import('pages/Bid.vue'),
       },
+      {
+        name: 'vote',
+        path: '/vote',
+        component: () => import('pages/Vote.vue'),
+      },
     ],
   },
 ];

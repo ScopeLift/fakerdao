@@ -44,8 +44,6 @@ contract Faker {
     uint256 public deploymentTime; // needed to determine the current period
     uint256 public periodLength; // 1 day
     uint256 constant phaseLength = 7; // 7 periods
-    uint256 constant shiftPhaseLength = 1; // 1 periods
-    uint256 constant auctionPhaseLength = 1; // 1 periods
 
     // Variables for managing deposits
     struct Deposit {
@@ -67,12 +65,6 @@ contract Faker {
     mapping(uint256 => Bid) public bids; // phase number => Bid
 
     constructor(uint256 _periodLength, address _bidTokenAddress) public {
-        // TODO Get _mkrAddress from chiefContract GOV variable
-
-        // TODO do the below setup here?
-        // "Welcome to the governance voting dashboard Before you can get started voting
-        // you will need to set up a voting contract -- Set up now"
-
         deploymentTime = now;
         periodLength = _periodLength;
         bidToken = IERC20(_bidTokenAddress);

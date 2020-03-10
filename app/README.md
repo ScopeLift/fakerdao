@@ -1,26 +1,16 @@
-# FakerDAO (faker-dao)
+# FakerDAO
 
 MKR Governance Auction
 
-## Install the dependencies
-```bash
-npm install
-```
+## Setup For Development
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
-quasar dev
-```
+# From the root directory
+npm run ganache
 
-### Lint the files
-```bash
-npm run lint
-```
+# From the root directory, in a new terminal window
+npx truffle migrate && source .env && npx truffle test test/initialize.js
 
-### Build the app for production
-```bash
-quasar build
+# From the app directory
+npm run dev
 ```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).

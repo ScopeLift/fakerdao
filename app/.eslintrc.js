@@ -11,10 +11,10 @@ module.exports = {
   },
 
   extends: [
-    'airbnb-base',
     // https://eslint.vuejs.org/rules/#priority-a-essential-error-prevention
     // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
-    'plugin:vue/essential'
+    'plugin:vue/recommended',
+    'airbnb-base'
   ],
 
   // required to lint *.vue files
@@ -47,6 +47,11 @@ module.exports = {
     'prefer-promise-reject-errors': 'off',
 
     // allow debugger during development only
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'max-len': ["error", {
+      "code": 120,
+      "ignoreUrls": true,
+      "ignoreRegExpLiterals": true,
+    }],
   }
 }

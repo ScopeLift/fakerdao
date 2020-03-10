@@ -8,13 +8,17 @@
   "author": "mds <17163988+mds1@users.noreply.github.com>",
   "private": true,
   "scripts": {
-    "lint": "eslint --ext .js,.vue src",
+    "dev": "npx quasar dev",
+    "build": "source .env && npx quasar build && firebase deploy",
+    "lint": "eslint --ext .js,.vue src --fix",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
-    "quasar": "^1.0.0"
+    "ethers": "^4.0.45",
+    "quasar": "^1.0.0",
+    "web3connect": "^1.0.0-beta.32"
   },
   "devDependencies": {
     "@quasar/app": "^1.0.0",

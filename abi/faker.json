@@ -1,0 +1,18 @@
+[
+  "function deploymentTime() view returns (uint256)",
+  "function periodLength() view returns (uint256)",
+  "function totalMaker() view returns (uint256)",
+  "function isShift() view returns (bool)",
+  "function isAuction() view returns (bool)",
+  "function deposit(uint256) external",
+  "function withdrawMaker() external",
+  "function submitBid(uint256) external",
+  "function voteByAddresses(address[]) external returns (bytes32)",
+  "function voteBySlate(bytes32) external",
+  "function withdrawEarnings(uint256[]) external",
+  "function makerDeposits(address) view returns (uint256,uint256)",
+  "function getCurrentPhase() external view returns (uint256)",
+  "function bids(uint256) external view returns (address,uint256,uint256)",
+  "function getCurrentPeriod() external view returns (uint256)",
+  "function phaseLength() external view returns (uint256)"
+]

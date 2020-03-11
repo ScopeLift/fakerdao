@@ -6,23 +6,34 @@
       style="color: #000000; background-color: rgba(0,0,0,0)"
     >
       <div class="row justify-between items-center">
-        <div
-          class="row justify-start items-center"
-          style="cursor: pointer;"
-          @click="$router.push({ name: 'home' });"
-        >
-          <img
-            alt="FakerDAO logo"
-            class="q-mx-md"
-            src="statics/app-logo-128x128.png"
-            style="max-width: 50px;"
+        <div class="col">
+          <div
+            class="row justify-start items-center"
+            style="cursor: pointer;"
+            @click="$router.push({ name: 'home' });"
           >
-          <div class="text-h5">
-            FakerDAO
+            <img
+              alt="FakerDAO logo"
+              class="q-mx-md"
+              src="statics/app-logo-128x128.png"
+              style="max-width: 50px;"
+            >
+            <div class="text-h5">
+              FakerDAO
+            </div>
           </div>
         </div>
-        <div class="text-caption q-mr-md">
-          Account: {{ userAddress }}
+        <div class="col-auto">
+          <div class="text-caption q-mr-md">
+            Account: {{ userAddress }}
+          </div>
+          <div
+            v-if="networkId !== '42'"
+            class="text-bold"
+            style="color:red"
+          >
+            Switch to the Kovan network to use this app!
+          </div>
         </div>
       </div>
     </q-header>
@@ -104,6 +115,7 @@ export default {
   computed: {
     ...mapState({
       userAddress: (state) => state.auth.userAddress,
+      networkId: (state) => state.auth.provider.provider.networkVersion,
     }),
   },
 };

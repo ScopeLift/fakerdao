@@ -4,7 +4,7 @@
   "description": "OpenZeppelin kit containing React, & OpenZeppelin SDK",
   "main": "index.js",
   "scripts": {
-    "ganache": "source .env && ganache-cli -d -f https://mainnet.infura.io/v3/$INFURA_ID -u $EXCHANGE_ADDRESS -u $WETH_HOLDER_ADDRESS",
+    "ganache": "source .env && ganache-cli -d -f https://kovan.infura.io/v3/$INFURA_ID -u $EXCHANGE_ADDRESS -u $WETH_HOLDER_ADDRESS",
     "test": "source .env && npx truffle test test/faker-*",
     "app-setup": "rm -rfv app/src/contracts/ && cp -r build/contracts/ app/src/contracts/",
     "build-contracts": "sol-merger \"./contracts/*.sol\" ./build"

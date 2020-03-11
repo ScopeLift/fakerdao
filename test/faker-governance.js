@@ -4,9 +4,11 @@ const TestToken = artifacts.require("TestToken");
 const IERC20 = artifacts.require("IERC20");
 const IChief = artifacts.require("IChief");
 
-const mkrAddress = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"; // GOV
-const iouAddress = "0x496c67a4ced9c453a60f3166ab4b329870c8e355"; // IOU (Locked GOV)
-const chiefAddress = "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5";
+// const mkrAddress = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"; // GOV mainnent
+const mkrAddress = "0xAaF64BFCC32d0F15873a02163e7E500671a4ffcD"; // GOV kovan
+// const iouAddress = "0x496c67a4ced9c453a60f3166ab4b329870c8e355"; // IOU (Locked GOV)
+// const chiefAddress = "0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5"; // mainnet
+const chiefAddress = "0xbBFFC76e94B34F72D96D054b31f6424249c1337d"; // kovan
 const exchangeAddress = process.env.EXCHANGE_ADDRESS;
 
 contract("Faker Governance", accounts => {
@@ -41,7 +43,7 @@ contract("Faker Governance", accounts => {
     // This slate has one candidate of 0xd24fbbb4497ad32308bda735683b55499ddc2cad
     // So, really we check that the candidate has 0 votes
 
-    initialVoteCount = await chiefInstance.approvals("0xd24fbbb4497ad32308bda735683b55499ddc2cad");
+    initialVoteCount = await chiefInstance.approvals("0xafb2bb6255d981953eddb2896a15a84dbd8d032e");
 
     // Deploy Faker
     instance = await Faker.new(24 * 60 * 60, bidTokenInstance.address);
@@ -80,7 +82,7 @@ contract("Faker Governance", accounts => {
     const expectedFinalCount = initialVoteCount.add(new BN(toWei("100", "ether")));
 
     // Check that defaultSlate candidate has > 0 votes
-    const finalVoteCount = await chiefInstance.approvals("0xd24fbbb4497ad32308bda735683b55499ddc2cad");
+    const finalVoteCount = await chiefInstance.approvals("0xafb2bb6255d981953eddb2896a15a84dbd8d032e");
     assert.equal(finalVoteCount.toString(), expectedFinalCount, "Unexpected vote count");
   });
 
@@ -113,8 +115,8 @@ contract("Faker Governance", accounts => {
 
   it("should allow the winning bidder to change the slate", async () => {
     // The below slate contains just one candidate address
-    const newSlate = "0x85c5658262531e9d211c409678dedece8322d82e625e8207d38bdccda0bd4dc2";
-    const newCandidate = "0x7a87acb1f92c50297239ef9b0ef9387105bd4fc5";
+    const newSlate = "0x3acfefd63eeb87b18e75b288312910175eb2a866d55da514806ff7e2f03368e5";
+    const newCandidate = "0x182230e9370248b0948d604845d382b969ce1830";
     const initialApprovalCount = await chiefInstance.approvals(newCandidate);
 
     await instance.voteBySlate(newSlate, { from: bidder1 });
@@ -141,7 +143,7 @@ contract("Faker Governance", accounts => {
     await instance.withdrawMaker({ from: depositor1 });
     const expectedFinalCount = initialVoteCount;
 
-    const finalVoteCount = await chiefInstance.approvals("0xd24fbbb4497ad32308bda735683b55499ddc2cad");
+    const finalVoteCount = await chiefInstance.approvals("0xafb2bb6255d981953eddb2896a15a84dbd8d032e");
     assert.equal(finalVoteCount.toString(), expectedFinalCount, "Unexpected vote count");
   });
 

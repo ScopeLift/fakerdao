@@ -91,7 +91,7 @@ contract Faker {
         );
 
         // Default slate upon deployment will be current leading candidate
-        bytes32 _defaultSlate = 0x9fcc2b823274b6d91dea0a59083969eb2b3bc41539bd9908df30e141a690b23e;
+        bytes32 _defaultSlate = 0xf2259bb710658f0bfccd4ec5e838ee9a64979b9491d9d74d45639610f2579fa8;
         chiefContract.vote(_defaultSlate);
     }
 

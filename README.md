@@ -25,8 +25,8 @@ Create a file called `.env` that looks like the following:
 
 ```bash
 export INFURA_ID=yourInfuraId
-export EXCHANGE_ADDRESS=0x05E793cE0C6027323Ac150F6d45C2344d28B6019
-export WETH_HOLDER_ADDRESS=0x07320dEb2713370A3D7b49189fc2F99906E1ae8E
+export EXCHANGE_ADDRESS=0xdB33dFD3D61308C33C63209845DaD3e6bfb2c674
+export WETH_HOLDER_ADDRESS=0xa71937147b55Deb8a530C7229C442Fd3F31b7db2
 ```
 
 Then run the following commands:

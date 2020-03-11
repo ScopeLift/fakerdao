@@ -75,7 +75,7 @@ contract Faker {
         deploymentTime = now;
         periodLength = _periodLength;
         bidToken = IERC20(_bidTokenAddress);
-        chiefContract = IChief(0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5);
+        chiefContract = IChief(0xbBFFC76e94B34F72D96D054b31f6424249c1337d);
         mkrContract = IERC20(chiefContract.GOV());
 
         // Approve Chief to spend our Maker and IOU
@@ -91,7 +91,7 @@ contract Faker {
         );
 
         // Default slate upon deployment will be current leading candidate
-        bytes32 _defaultSlate = 0x9fcc2b823274b6d91dea0a59083969eb2b3bc41539bd9908df30e141a690b23e;
+        bytes32 _defaultSlate = 0xf2259bb710658f0bfccd4ec5e838ee9a64979b9491d9d74d45639610f2579fa8;
         chiefContract.vote(_defaultSlate);
     }
 

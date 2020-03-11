@@ -3,7 +3,8 @@ const Faker = artifacts.require("Faker");
 const TestToken = artifacts.require("TestToken");
 const IERC20 = artifacts.require("IERC20");
 
-const mkrAddress = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"; // GOV
+// const mkrAddress = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2";
+const mkrAddress = "0xAaF64BFCC32d0F15873a02163e7E500671a4ffcD"; // GOV mainnent
 const exchangeAddress = process.env.EXCHANGE_ADDRESS;
 
 contract("Faker Auctions", accounts => {

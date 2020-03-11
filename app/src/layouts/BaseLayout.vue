@@ -32,7 +32,7 @@
             class="text-bold"
             style="color:red"
           >
-            Switch to the Kovan network to use this app!
+            Connect to the Kovan network to use this app!
           </div>
         </div>
       </div>
@@ -114,8 +114,18 @@ export default {
 
   computed: {
     ...mapState({
-      userAddress: (state) => state.auth.userAddress,
-      networkId: (state) => state.auth.provider.provider.networkVersion,
+      userAddress: (state) => {
+        if (state.auth.userAddress === state.constants.AddressZero) {
+          return 'Not connected';
+        }
+        return state.auth.userAddress;
+      },
+      networkId: (state) => {
+        if (state.auth && state.auth.provider && state.auth.provider.provider) {
+          return state.auth.provider.provider.networkVersion;
+        }
+        return undefined;
+      },
     }),
   },
 };

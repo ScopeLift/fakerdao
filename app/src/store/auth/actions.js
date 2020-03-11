@@ -5,11 +5,18 @@ export function setProvider({ commit }, provider) {
 }
 
 export async function pollBlockchain({ commit, rootState }) {
+  // Get user address
   let userAddress;
   if (rootState.auth.provider && rootState.auth.provider.provider) {
     userAddress = rootState.auth.provider.provider.selectedAddress;
   } else if (rootState.auth.provider) {
     userAddress = rootState.auth.provider.selectedAddress;
+  }
+
+  // If address is undefined, set it to the zero address to avoid
+  // errors and ensure this function keeps executing
+  if (!userAddress) {
+    userAddress = rootState.constants.AddressZero;
   }
   commit('setUserAddress', userAddress);
   // Get contracts and addresses
@@ -77,9 +84,10 @@ export async function pollBlockchain({ commit, rootState }) {
 
 
   const data = {
-    userMkrBalance,
+    // Set some values to zero if address is zero address, i.e. using fallback provider
+    userMkrBalance: userAddress === rootState.constants.AddressZero ? rootState.constants.Zero : userMkrBalance,
     mkrAllowance,
-    userWethBalance,
+    userWethBalance: userAddress === rootState.constants.AddressZero ? rootState.constants.Zero : userWethBalance,
     wethAllowance,
     isShift,
     isAuction,

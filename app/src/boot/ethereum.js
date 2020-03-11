@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 const providerOptions = {};
 
 const web3Connect = new Web3Connect.Core({
-  network: 'mainnet', // optional
+  network: 'kovan', // optional
   cacheProvider: true, // optional
   providerOptions, // required
 });
@@ -19,7 +19,7 @@ export default async ({ store /* app, router, Vue, ... */ }) => {
   let signer;
   if (web3Connect.providers.length === 0) {
     // Fallback to ethers provider
-    ethersProvider = ethers.getDefaultProvider('homestead');
+    ethersProvider = ethers.getDefaultProvider('kovan');
     signer = ethersProvider; // not actually a signer
   } else {
     // Otherwise use user's web3

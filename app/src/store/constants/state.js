@@ -1,3 +1,5 @@
+import { MaxUint256, AddressZero, Zero } from 'ethers/constants';
+
 export default function () {
   return {
     contracts: {
@@ -8,5 +10,8 @@ export default function () {
       makerContract: undefined,
       chiefContract: undefined,
     },
+    AddressZero,
+    MaxUint256,
+    Zero,
   };
 }

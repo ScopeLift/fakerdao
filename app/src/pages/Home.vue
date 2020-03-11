@@ -292,7 +292,10 @@ export default {
     },
 
     timeUntilNextPhase() {
-      const secondsRemaining = date.getDateDiff(this.dateNextPhaseStarts, new Date(), 'seconds');
+      const now = (new Date()).getTime();
+      const nextPhase = (date.addToDate(new Date(), { seconds: this.timeToNextPhase })).getTime();
+      const secondsRemaining = Math.floor((nextPhase - now) / 1000);
+
       const hours = Math.floor(secondsRemaining / 3600);
       const secondsLeft = secondsRemaining % 3600;
       const minutes = Math.floor(secondsLeft / 60);

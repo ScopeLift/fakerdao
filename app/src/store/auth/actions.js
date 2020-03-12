@@ -1,4 +1,5 @@
 // const addresses = require('../../../../abi/addresses.json');
+import { ethers } from 'ethers';
 
 export function setProvider({ commit }, provider) {
   commit('setProvider', provider);
@@ -79,15 +80,46 @@ export async function pollBlockchain({ commit, rootState }) {
   const userMkrDepositAmount = mkrDepositInfo[0];
   const userMkrDepositPhase = mkrDepositInfo[1];
 
-  // Get current auction winner
-  const currentWinner = (await fakerContract.bids(currentPhaseNumber))[0];
+  // Get current auction winner and leading bidder
+  const leadingBidder = (await fakerContract.bids(currentPhaseNumber))[0];
+  const leadingBidAmount = (await fakerContract.bids(currentPhaseNumber))[1];
+
+  let currentWinner;
+  let currentWinnersBidAmount;
+  let currentWinnersMkrAmount;
+
+  if (currentPhaseNumber === 0) {
+    currentWinner = 'TBD';
+    currentWinnersBidAmount = 'TBD';
+    currentWinnersMkrAmount = 'TBD';
+  } else if (isShift || isAuction) {
+    // if shift, currentWinner is from phase-1
+    [
+      currentWinner,
+      currentWinnersBidAmount,
+      currentWinnersMkrAmount,
+    ] = await fakerContract.bids(currentPhaseNumber - 1);
+  } else {
+    // else, current winner is from current phase
+    [
+      currentWinner,
+      currentWinnersBidAmount,
+      currentWinnersMkrAmount,
+    ] = await fakerContract.bids(currentPhaseNumber);
+  }
 
 
   const data = {
     // Set some values to zero if address is zero address, i.e. using fallback provider
-    userMkrBalance: userAddress === rootState.constants.AddressZero ? rootState.constants.Zero : userMkrBalance,
+    userMkrBalance:
+      userAddress === rootState.constants.AddressZero
+        ? rootState.constants.Zero
+        : userMkrBalance,
     mkrAllowance,
-    userWethBalance: userAddress === rootState.constants.AddressZero ? rootState.constants.Zero : userWethBalance,
+    userWethBalance:
+      userAddress === rootState.constants.AddressZero
+        ? rootState.constants.Zero
+        : userWethBalance,
     wethAllowance,
     isShift,
     isAuction,
@@ -100,6 +132,16 @@ export async function pollBlockchain({ commit, rootState }) {
     userMkrDepositPhase,
     currentPhaseNumber,
     currentWinner,
+    currentWinnersBidAmount:
+      currentWinnersBidAmount === 'TBD'
+        ? 'TBD'
+        : ethers.utils.formatEther(currentWinnersBidAmount),
+    currentWinnersMkrAmount:
+      currentWinnersBidAmount === 'TBD'
+        ? 'TBD'
+        : ethers.utils.formatEther(currentWinnersMkrAmount),
+    leadingBidder,
+    leadingBidAmount: ethers.utils.formatEther(leadingBidAmount),
     currentPeriod: parseInt(currentPeriod.toString(), 10),
     phaseLength: parseInt(phaseLength.toString(), 10),
   };

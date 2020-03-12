@@ -12,7 +12,6 @@ export default function () {
       wethAllowance: undefined,
     },
     faker: {
-      leadingBidder: undefined, // bidder leading the current auction
       isShift: undefined,
       isAuction: undefined,
       currentPeriod: undefined,
@@ -24,6 +23,10 @@ export default function () {
       currentPhaseNumber: undefined,
       phaseLength: undefined,
       currentWinner: undefined,
+      currentWinnersBidAmount: undefined,
+      currentWinnersMkrAmount: undefined,
+      leadingBidder: undefined,
+      leadingBidAmount: undefined,
     },
   };
 }

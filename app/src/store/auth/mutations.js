@@ -24,6 +24,10 @@ export function setBlockchainData(state, data) {
   state.faker.totalMaker = data.totalMaker;
   state.faker.phaseLength = data.phaseLength;
   state.faker.currentPhaseNumber = data.currentPhaseNumber;
-  state.faker.currentWinner = data.currentWinner;
   state.faker.currentPeriod = data.currentPeriod;
+  state.faker.currentWinner = data.currentWinner;
+  state.faker.currentWinnersBidAmount = data.currentWinnersBidAmount;
+  state.faker.currentWinnersMkrAmount = data.currentWinnersMkrAmount;
+  state.faker.leadingBidder = data.leadingBidder;
+  state.faker.leadingBidAmount = data.leadingBidAmount;
 }

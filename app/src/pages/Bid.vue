@@ -17,10 +17,16 @@
         Bidding will open up during the next Auction Phase
       </div>
       <div>
-        <span class="text-bold">Available WETH for Bidding:</span> {{ formattedUserWethBalance }} WETH
+        <span class="text-bold">Your available WETH for Bidding:</span> {{ formattedUserWethBalance }} WETH
       </div>
       <div>
         <span class="text-bold">Available MKR to Bid On:</span> {{ formattedTotalMkrBalance }} MKR
+      </div>
+      <div>
+        <span class="text-bold">Current Leading Bidder:</span> {{ leadingBidder }}
+      </div>
+      <div>
+        <span class="text-bold">Current Leading Bid:</span> {{ leadingBidAmount }} WETH
       </div>
 
       <hr class="q-my-xl">
@@ -95,7 +101,7 @@
           />
           <q-btn
             :disabled="!isAuction"
-            class="q-mt-md"
+            class="q-mt-md q-mb-lg"
             color="primary"
             label="Bid!"
             style="min-width: 150px;"
@@ -127,6 +133,8 @@ export default {
       userWethBalance: (state) => state.auth.data.userWethBalance,
       totalMaker: (state) => state.auth.faker.totalMaker,
       isAuction: (state) => state.auth.faker.isAuction,
+      leadingBidder: (state) => state.auth.faker.leadingBidder,
+      leadingBidAmount: (state) => state.auth.faker.leadingBidAmount,
       fakerContract: (state) => state.constants.contracts.fakerContract,
       wethContract: (state) => state.constants.contracts.wethContract,
     }),

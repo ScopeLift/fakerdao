@@ -4,8 +4,17 @@
       <h2>
         Vote
       </h2>
-      <div class="text-h6 q-my-md">
+      <div
+        v-if="currentPhaseNumber > 0"
+        class="text-h6 q-my-md"
+      >
         Voting is live for the current winning bidder!
+      </div>
+      <div
+        v-else
+        class="text-h6 q-my-md"
+      >
+        Voting will be live once this week's auction completes!
       </div>
       <div>
         The current winning bidder is {{ currentWinner }}
@@ -102,6 +111,7 @@ export default {
     ...mapState({
       totalMaker: (state) => state.auth.faker.totalMaker,
       currentWinner: (state) => state.auth.faker.currentWinner,
+      currentPhaseNumber: (state) => state.auth.faker.currentPhaseNumber,
       userAddress: (state) => state.auth.userAddress,
     }),
 

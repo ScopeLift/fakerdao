@@ -126,6 +126,17 @@
     <div class="row justify-center q-mt-lg">
       <div class="col-auto">
         <!-- DEPOSIT -->
+        <div
+          v-if="isShift"
+          class="text-caption live-now q-ml-md "
+          @click="showMkrDialog=true"
+        >
+          Live now for anyone!
+        </div>
+        <div v-else>
+          <!-- Blank line to ensure proper spacing/alignment -->
+          <br>
+        </div>
         <q-card
           bordered
           class="col-auto card-border q-ma-md"
@@ -160,6 +171,17 @@
 
       <!-- BID -->
       <div class="col-auto">
+        <div
+          v-if="isAuction"
+          class="text-caption live-now q-ml-md "
+          @click="showMkrDialog=true"
+        >
+          Live now for anyone! Leading bid: {{ leadingBidAmount }} WETH
+        </div>
+        <div v-else>
+          <!-- Blank line to ensure proper spacing/alignment -->
+          <br>
+        </div>
         <q-card
           bordered
           class="col-auto card-border q-ma-md"
@@ -193,6 +215,17 @@
       </div>
       <!-- VOTING -->
       <div class="col-auto">
+        <div
+          v-if="currentPhaseNumber > 0"
+          class="text-caption live-now q-ml-md "
+          @click="showMkrDialog=true"
+        >
+          Live now for current winner!
+        </div>
+        <div v-else>
+          <!-- Blank line to ensure proper spacing/alignment -->
+          <br>
+        </div>
         <q-card
           bordered
           class="col-auto card-border q-ma-md"
@@ -248,8 +281,10 @@ export default {
       currentWinner: (state) => state.auth.faker.currentWinner,
       leadingBidder: (state) => state.auth.faker.leadingBidder,
       currentPhase: (state) => state.auth.faker.currentPhase,
+      currentPhaseNumber: (state) => state.auth.faker.currentPhaseNumber,
       currentPeriod: (state) => state.auth.faker.currentPeriod,
       nextPhase: (state) => state.auth.faker.nextPhase,
+      leadingBidAmount: (state) => state.auth.faker.leadingBidAmount,
       deploymentTime: (state) => parseFloat(state.auth.faker.deploymentTime.toString()),
       periodLength: (state) => parseFloat(state.auth.faker.periodLength.toString()),
       phaseLength: (state) => parseFloat(state.auth.faker.periodLength.toString()),
@@ -334,5 +369,10 @@ export default {
 .need-help {
   position: relative;
   top: -10px;
+}
+
+.live-now {
+  position: relative;
+  top: 10px;
 }
 </style>

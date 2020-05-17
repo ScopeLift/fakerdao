@@ -315,8 +315,9 @@ export default {
       }
 
       const currentPeriod = parseInt(this.currentPeriod, 10);
-      const periodsToNextPhase = this.phaseLength - (currentPeriod % this.phaseLength);
-
+      const periodsToNextPhase = (this.phaseLength / this.periodLength) - (
+        currentPeriod % (this.phaseLength / this.periodLength)
+      );
       return this.timeToPeriodOffset(periodsToNextPhase);
     },
 
